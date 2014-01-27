@@ -21,7 +21,6 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
@@ -33,18 +32,22 @@ app.get('/', routes.index); // route path
 var server = http.createServer(app);
 
 //mangooseがmongodbを使うために必要なモジュール。使う際は予めmongoを起動させておく必要がある。
-//デフォルトの待ちうけはlocalの27017
+//デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。
 var mongoose = require('mongoose');
-var db = mongoose.connect('mongodb://localhost:27017/memo');
 
-//memoTextのスキーマを作成。テストではメモのみ
-var memoTextSchema = mongoose.Schema({
-	// number : Number,
-	memo : String //,
-	// date : Date
+//memoTextのスキーマを作成
+var chatTextSchema = mongoose.Schema({
+	fromId : String,
+	messageText : String,
+	date : Date
 });
+mongoose.model('chat',chatTextSchema);
 
-var memoTextModel = db.model('memo',memoTextSchema);
+//ここからmongo処理パート
+mongoose.connect('mongodb://localhost:27017/chat');
+
+var Chat = mongoose.model('chat');
+//ここまで
 
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
@@ -54,28 +57,61 @@ server.listen(app.get('port'), function(){
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function(socket) {
-  console.log("connection");
-  
-  // メッセージを受けたときの処理
-  socket.on('message', function(data) {
-    // つながっているクライアント全員に送信
-    console.log("message");
-    io.sockets.emit('message',{eventName:'message' ,message:data, from:socket.id});
-  });
+	console.log("connection");
+
+	// メッセージを受けたときの処理
+	socket.on('message', function(data) {
+		console.log("message");
+		//dbに保存
+    	var chat = new Chat();
+    	var fromId = socket.id;
+    	var now = data.date;
+    	console.log('now' + now);
+    	chat.fromId = fromId;
+    	chat.messageText = data.message;
+	    chat.date = now;
+	    //chat.saveで保存、引数はエラー時の処理の関数
+	    chat.save(function(err) {
+	    	if (err) { 
+	    		console.log(err);
+	    	}else{
+	    		//sortは-1だと最新のものから表示される。1だと古いものから表示される
+	    		var dbData = Chat.find({}, 'date', {sort:{date:-1}, limit:1}, function(err, docs) {
+    				for (var i=0, size=docs.length; i<size; ++i) {
+    					console.log(docs[i].date);
+    				}
+    			});
+    		}
+    	});
+	     // つながっているクライアント全員に送信
+	    io.sockets.emit('message',{eventName:'message' ,message:data.message, from:socket.id});
+	});
 
   // クライアントが参加、切断したときの処理
   // on(event名,function(){})
   // .emit,.onは対。event名を一致させないといけない。
-  socket.on('ready', function(data){
-    console.log('ready');
-    var id = socket.id;
-    io.sockets.emit('message',{eventName:'ready' ,from:id});
-  });
+  	socket.on('ready', function(data){
+    	console.log('ready');
+    	var id = socket.id;
+    	// socket.broadcast.emit("event名","value");　これで自分以外の全員にメッセージを送ることができる。
+    	//DBから履歴を読み取り、送信する
+    	//DBにデータがある場合には読み込み、クライアントに送信する。第一引数はクエリ。第二引数の列名は半角スペースで複数記述できる'a b c'。nullなら全列検索。
+    	// 第三引数はoption、ソートやlimit。第四引数はコールバック。
+    	Chat.find({},'fromId messageText date',{sort:{date : 1}}, function(err, docs) {
+    		for (var i = 0; i<docs.length ; ++i) {
+    			console.log('日付:' + docs.date);
+    			io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, from:docs[i].fromId});
+    			// io.sockets.emit('message',{eventName:'message' ,message:docs[i].messageText, from:docs[i].fromId});
+    		}
+    		io.sockets.emit('message',{eventName:'ready' ,from:id});
+    	});
+  	});
 
   //IEがうまく動かないので、readyと同じ処理を二つ書いた（これだとなぜかうまく動作する）
-  socket.on('disconnect', function(data){
-    console.log('disconnect');
-    var id = socket.id;
-    io.sockets.emit('message',{eventName:'disconnect',from:id});
-  });
+  	socket.on('disconnect', function(data){
+    	console.log('disconnect');
+    	var id = socket.id;
+    	io.sockets.emit('message',{eventName:'disconnect',from:id});
+  	});
 });
+//TODO　画像をアップロードして、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）。

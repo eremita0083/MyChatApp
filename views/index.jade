@@ -6,6 +6,7 @@ block content
 		form(name="sampleForm")
 			//- jadeのheadでscript srcでjsを読み込むことで、ここで関連付けたidが使えるようになる。
 			input(type="text", name="textfield", id="text1")
-			input(type="button", value="書き込み", onclick="writing()")
+			input(type="button", value="書き込み", onclick="sendTextToServer()")
+			input(type="button", value="履歴削除", onclick="removeAllHistory()")
 		p(id="connectId") userId
 	div(id="dataArea", style="height: 500px; overflow: scroll;")

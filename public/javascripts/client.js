@@ -46,13 +46,19 @@ socket.on('message', function (data) {
 socket.emit('ready','ready');
 
 //ボタンを押したらテキストをサーバーに送る処理
-function writing(){
+function sendTextToServer(){
 	//これでinput textからテキストを取得
 	var text = document.sampleForm.textfield.value; // form属性にname、フォームに属するinputにname属性を付与するとこのように使える。ハイフンは入れない
 	// var text = document.getElementById("text1").value; //ID属性を指定していたならこちらでもよい。
-	socket.emit('message',text);
+	var now = new Date();
+	socket.emit('message',{message:text, date:now});
 	// alert('「' + text + '」を送信しました');
 	console.log('送信したデータ：' + text);
+}
+
+//ボタンを押すことでデータベースの履歴を削除する TODO
+function removeAllHistory(){
+	window.alert('removing');
 }
 
 //退出時の処理
@@ -67,5 +73,3 @@ window.onbeforeunload = function (e) {
 	socket.emit('disconnect','disconnect');
 	return;
 }
-
-//TODO 全体の履歴をｄｂで出す。
