@@ -1,0 +1,11 @@
+doctype html
+html
+	head
+		title= title
+		meta(charset="utf-8")
+		link(rel='stylesheet', href='/stylesheets/style.css')
+		//- ここでscriptとjadeを関連付ける。先にモジュールから読み込む
+		script(src="/socket.io/socket.io.js")
+		script(src="/javascripts/client.js")
+	body
+		block content
