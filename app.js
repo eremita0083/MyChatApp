@@ -53,7 +53,6 @@ server.listen(app.get('port'), function(){
 //serverを作成しlistenした後、socket.ioをrequireしサーバにて更にlisten
 var io = require('socket.io').listen(server);
 
-//TODO　以下調整必要　
 io.sockets.on('connection', function(socket) {
   console.log("connection");
   
@@ -61,21 +60,22 @@ io.sockets.on('connection', function(socket) {
   socket.on('message', function(data) {
     // つながっているクライアント全員に送信
     console.log("message");
-    io.sockets.emit('message',data.message);
+    io.sockets.emit('message',{eventName:'message' ,message:data, from:socket.id});
   });
 
-  // クライアントが切断したときの処理
-  socket.on('disconnect', function(data){
-    console.log("disconnect");
-    io.sockets.emit('message',socket.id + "が退出しました");
-  });
-
-  //クライアントが参加したときの処理,on(event名,function(){})
-  // emit,onは対。event名を一致させないといけない。
+  // クライアントが参加、切断したときの処理
+  // on(event名,function(){})
+  // .emit,.onは対。event名を一致させないといけない。
   socket.on('ready', function(data){
     console.log('ready');
-    var id = socket.id
-    io.sockets.emit('ready',id);
+    var id = socket.id;
+    io.sockets.emit('message',{eventName:'ready' ,from:id});
   });
 
+  //IEがうまく動かないので、readyと同じ処理を二つ書いた（これだとなぜかうまく動作する）
+  socket.on('disconnect', function(data){
+    console.log('disconnect');
+    var id = socket.id;
+    io.sockets.emit('message',{eventName:'disconnect',from:id});
+  });
 });

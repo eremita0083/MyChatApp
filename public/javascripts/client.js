@@ -1,42 +1,56 @@
 var socket = io.connect('http://localhost:3000');
 
-var selfId;
-//UserIdを画面に表示し、参加したことを知らせる
-socket.emit('ready','');
+var NS = {};
+/*
+variant: selfId,
+function: receivedAction,
+*/
+
+//メッセージ受け取り、参加、退出のルーティング処理と追加処理
+NS.receivedAction = function(eventName,message,from){
+	var child = document.createElement('p');
+    var dataArea = document.getElementById('dataArea');
+    switch(eventName){
+    	case 'message':
+    	child.innerHTML = from + ': ' + message;
+    	break;
+    	case 'disconnect':
+    	child.innerHTML = from + 'が退出しました';
+    	child.style.color = 'blue';
+    	break;
+    	case 'ready':
+    	if(!NS.selfId){
+    		NS.selfId = from;
+    		document.getElementById('connectId').innerHTML = 'yourID: ' + NS.selfId;
+    	}
+    	child.innerHTML = from + 'が参加しました';
+    	child.style.color = 'red';
+    	break;
+    }
+    dataArea.insertBefore(child,dataArea.childNodes[0] || null); //この書き方をしないとIEにはじかれる
+}
 
 //メッセージ受け取り処理
 socket.on('message', function (data) {
     console.log('message received!');
-    console.log('受け取ったデータ:' + data);
-    var child = document.createElement('p');
-    child.innerHTML = data;
-    var dataArea = document.getElementById('dataArea');
-    dataArea.insertBefore(child,dataArea.childNodes[0] || null);
+    var mes = data.message;
+    var from = data.from;
+    var eName = data.eventName;
+    console.log('イベント名:' + eName);
+    console.log('メッセージ:' + mes);
+    console.log('id:' + from);
+    NS.receivedAction(eName,mes,from);
 });
 
-//参加受け取り。selfIdを保存
-socket.on('ready', function (data) {
-    console.log('ready received');
-    var child = document.createElement('p');
-    // !selfId ? (selfId = data) :　null ;
-    if(!selfId){
-    	selfId = data;
-    	document.getElementById('connectId').innerHTML = 'yourID: ' + selfId;
-    }
-    child.innerHTML = data + 'が参加';
-    child.style.color = 'red';
-    var dataArea = document.getElementById('dataArea');
-    dataArea.insertBefore(child,dataArea.childNodes[0] || null); //こうしないとIEではじかれる
-    // document.getElementById('dataArea').appendChild(child);で末尾につく
-});
+//UserIdを画面に表示し、参加したことを知らせる
+socket.emit('ready','ready');
 
 //ボタンを押したらテキストをサーバーに送る処理
 function writing(){
 	//これでinput textからテキストを取得
-	var text = document.sampleForm.textfield.value;
-	// var text = document.getElementById("text1").value;
-
-	socket.emit('message',{message:selfId+ ':' + text});
+	var text = document.sampleForm.textfield.value; // form属性にname、フォームに属するinputにname属性を付与するとこのように使える。ハイフンは入れない
+	// var text = document.getElementById("text1").value; //ID属性を指定していたならこちらでもよい。
+	socket.emit('message',text);
 	// alert('「' + text + '」を送信しました');
 	console.log('送信したデータ：' + text);
 }
@@ -46,13 +60,12 @@ window.onbeforeunload = function (e) {
 	var e = e || window.event;
 	// IE Firefox など
 	if (e) {
-		socket.emit('disconnect',null);
+		socket.emit('disconnect','disconnect');
 		return;
 	}
 	// saffari 用
-	socket.emit('disconnect',null);
+	socket.emit('disconnect','disconnect');
 	return;
-};
-
+}
 
 //TODO 全体の履歴をｄｂで出す。
