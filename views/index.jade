@@ -8,5 +8,8 @@ block content
 			input(type="text", name="textfield", id="text1")
 			input(type="button", value="書き込み", onclick="sendTextToServer()")
 			input(type="button", value="履歴削除", onclick="removeAllHistory()")
+			br
+			input(type="file", name="fileSelector")
+			input(type="button", value="img file sending", onclick="sendImgToServer()")
 		p(id="connectId") userId
 	div(id="dataArea", style="height: 500px; overflow: scroll;")

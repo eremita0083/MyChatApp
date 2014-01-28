@@ -53,7 +53,7 @@ server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-//serverを作成しlistenした後、socket.ioをrequireしサーバにて更にlisten
+//serverを作成しlistenした後、socket.ioをrequireしサーバにてlisten
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function(socket) {
@@ -100,18 +100,45 @@ io.sockets.on('connection', function(socket) {
     	Chat.find({},'fromId messageText date',{sort:{date : 1}}, function(err, docs) {
     		for (var i = 0; i<docs.length ; ++i) {
     			console.log('日付:' + docs.date);
+    			//io.sockets.socket(socket.idで特定の人へメッセージを送ることができる)
     			io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, from:docs[i].fromId});
-    			// io.sockets.emit('message',{eventName:'message' ,message:docs[i].messageText, from:docs[i].fromId});
     		}
     		io.sockets.emit('message',{eventName:'ready' ,from:id});
     	});
   	});
 
-  //IEがうまく動かないので、readyと同じ処理を二つ書いた（これだとなぜかうまく動作する）
+	//IEがうまく動かないので、readyと同じ処理を二つ書いた（これだとなぜかうまく動作する）
   	socket.on('disconnect', function(data){
     	console.log('disconnect');
     	var id = socket.id;
     	io.sockets.emit('message',{eventName:'disconnect',from:id});
   	});
+
+  	//画像を配信する
+  	socket.on('upload', function(data){
+  		var fs = require('fs');
+        var writeFile = data.file;
+        var writePath = 'public/images/' + data.name;
+        var writeStream = fs.createWriteStream(writePath);
+        writeStream.on('drain', function () {} )
+        .on('error', function (exception) {
+            console.log("エラーが起きたよ"+exception);
+            console.log("ここがパスだよ。"+ file);
+        })
+        .on('close', function () {
+            //書き込み完了時の処理 リアクタパターンで書かないとノンブロッキングIOモデルなので注意が必要
+            console.log('サーバにデータが来たよ');
+            io.sockets.emit('notify',{name : data.name, type: data.type});
+        })
+        .on('pipe', function (src) {
+
+        }); 
+        writeStream.write(writeFile,'binary'); //バイナリ形式で書き込み指定
+        writeStream.end();
+  	});
 });
-//TODO　画像をアップロードして、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）。
+
+// TODO　画像をアップロードしてDBに保存、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）。
+// type 
+// ステータスコード 200系成功、400系はアドレス側　500系はサーバー側のミス
+// ロードバランサーがサーバにうまく振り分ける。

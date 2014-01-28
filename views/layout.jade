@@ -4,7 +4,8 @@ html
 		title= title
 		meta(charset="utf-8")
 		link(rel='stylesheet', href='/stylesheets/style.css')
-		//- ここでscriptとjadeを関連付ける。先にモジュールから読み込む
+		link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+		//- ここでscriptとjadeを関連付ける。先にモジュールから読み込む。でないとそのモジュールを使うclientjsなどが読み込めない。
 		script(src="/socket.io/socket.io.js")
 		script(src="/javascripts/client.js")
 	body

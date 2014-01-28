@@ -51,7 +51,8 @@ function sendTextToServer(){
 	var text = document.sampleForm.textfield.value; // form属性にname、フォームに属するinputにname属性を付与するとこのように使える。ハイフンは入れない
 	// var text = document.getElementById("text1").value; //ID属性を指定していたならこちらでもよい。
 	var now = new Date();
-	socket.emit('message',{message:text, date:now});
+    console.log(now.getTime());
+	socket.emit('message',{message:text, date:now.getTime()});
 	// alert('「' + text + '」を送信しました');
 	console.log('送信したデータ：' + text);
 }
@@ -73,3 +74,34 @@ window.onbeforeunload = function (e) {
 	socket.emit('disconnect','disconnect');
 	return;
 }
+
+//イメージの送信
+function sendImgToServer(event){
+    var file = document.sampleForm.fileSelector.files[0] || document.sampleForm.fileSelector.file;
+    var fileName = file.name;
+    var type = file.type;
+    console.log(fileName);
+
+    var data = {};
+    var reader = new FileReader();
+    reader.readAsBinaryString(file);
+    reader.onload = function(event) {
+         data.file = event.target.result;
+         data.name = file.name;
+         data.type = type;
+         data.size = file.size;
+         socket.emit('upload',data);
+         console.log('size'+ data.size + ' type' + data.type);
+     }
+
+}
+
+//イメージの受け取り
+socket.on('notify', function (data) {
+    console.log('notify : ' + data.name);
+    // var writePath = './public/'+data.name + '.' + data.type;
+    var child = document.createElement('img');
+    child.src = 'images/'+ data.name;
+    var dataArea = document.getElementById('dataArea');
+    dataArea.insertBefore(child, dataArea.childNodes[0] || null);
+});
