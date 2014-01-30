@@ -105,3 +105,5 @@ socket.on('notify', function (data) {
     var dataArea = document.getElementById('dataArea');
     dataArea.insertBefore(child, dataArea.childNodes[0] || null);
 });
+
+//http://blog.marcon.me/post/31143865164/send-images-through-websockets
