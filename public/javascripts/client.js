@@ -81,19 +81,17 @@ function sendImgToServer(event){
     var fileName = file.name;
     var type = file.type;
     console.log(fileName);
-
     var data = {};
     var reader = new FileReader();
-    reader.readAsBinaryString(file);
     reader.onload = function(event) {
-         data.file = event.target.result;
-         data.name = file.name;
-         data.type = type;
-         data.size = file.size;
-         socket.emit('upload',data);
-         console.log('size'+ data.size + ' type' + data.type);
-     }
-
+        data.file = event.target.result;
+        data.name = file.name;
+        data.type = type;
+        data.size = file.size;
+        socket.emit('upload', data);
+        console.log('size'+ data.size + ' type' + data.type);
+    }
+    reader.readAsDataURL(file);
 }
 
 //イメージの受け取り
@@ -102,6 +100,14 @@ socket.on('notify', function (data) {
     // var writePath = './public/'+data.name + '.' + data.type;
     var child = document.createElement('img');
     child.src = 'images/'+ data.name;
+    var dataArea = document.getElementById('dataArea');
+    dataArea.insertBefore(child, dataArea.childNodes[0] || null);
+});
+
+socket.on('userimage', function(from, data){
+    console.log('userimage' + data);
+    var child = document.createElement('img');
+    child.src = data;
     var dataArea = document.getElementById('dataArea');
     dataArea.insertBefore(child, dataArea.childNodes[0] || null);
 });

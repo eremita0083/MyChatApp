@@ -116,7 +116,9 @@ io.sockets.on('connection', function(socket) {
 
   	//画像を配信する
   	socket.on('upload', function(data){
-  		var fs = require('fs');
+  		console.log('upload' + data.name);
+  		io.sockets.emit('userimage', socket.id, data.file);
+  		/*var fs = require('fs');
         var writeFile = data.file;
         var writePath = 'public/images/' + data.name;
         var writeStream = fs.createWriteStream(writePath);
@@ -134,7 +136,7 @@ io.sockets.on('connection', function(socket) {
 
         }); 
         writeStream.write(writeFile,'binary'); //バイナリ形式で書き込み指定
-        writeStream.end();
+        writeStream.end();*/
   	});
 });
 
