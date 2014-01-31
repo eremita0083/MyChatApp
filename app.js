@@ -37,17 +37,14 @@ var mongoose = require('mongoose');
 
 //memoTextのスキーマを作成
 var chatTextSchema = mongoose.Schema({
-	fromId : String,
-	messageText : String,
-	date : Date
+	fromId:String,
+	messageText:String,
+	date:Date,
+	img:String
 });
 mongoose.model('chat',chatTextSchema);
-
-//ここからmongo処理パート
 mongoose.connect('mongodb://localhost:27017/chat');
-
 var Chat = mongoose.model('chat');
-//ここまで
 
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
@@ -64,12 +61,7 @@ io.sockets.on('connection', function(socket) {
 		console.log("message");
 		//dbに保存
     	var chat = new Chat();
-    	var fromId = socket.id;
-    	var now = data.date;
-    	console.log('now' + now);
-    	chat.fromId = fromId;
-    	chat.messageText = data.message;
-	    chat.date = now;
+    	addDataToChatModel(chat,socket.id,data.message,{});
 	    //chat.saveで保存、引数はエラー時の処理の関数
 	    chat.save(function(err) {
 	    	if (err) { 
@@ -97,11 +89,15 @@ io.sockets.on('connection', function(socket) {
     	//DBから履歴を読み取り、送信する
     	//DBにデータがある場合には読み込み、クライアントに送信する。第一引数はクエリ。第二引数の列名は半角スペースで複数記述できる'a b c'。nullなら全列検索。
     	// 第三引数はoption、ソートやlimit。第四引数はコールバック。
-    	Chat.find({},'fromId messageText date',{sort:{date : 1}}, function(err, docs) {
+    	Chat.find({},'fromId messageText date img',{sort:{date : 1}}, function(err, docs) {
+    		console.log('DBから履歴読み出し中');
     		for (var i = 0; i<docs.length ; ++i) {
-    			console.log('日付:' + docs.date);
     			//io.sockets.socket(socket.idで特定の人へメッセージを送ることができる)
-    			io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, from:docs[i].fromId});
+    			if(!docs[i].messageText.indexOf('@image:')){
+    				io.sockets.socket(socket.id).emit('userimage', docs[i].fromId , docs[i].img);	
+    			}else{
+    				io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, from:docs[i].fromId});
+    			}
     		}
     		io.sockets.emit('message',{eventName:'ready' ,from:id});
     	});
@@ -118,6 +114,19 @@ io.sockets.on('connection', function(socket) {
   	socket.on('upload', function(data){
   		console.log('upload' + data.name);
   		io.sockets.emit('userimage', socket.id, data.file);
+  		var chat = new Chat();
+  		addDataToChatModel(chat, socket.id, '@image:' + data.name ,data.file);
+  		chat.save(function(err){ // ここで保存ができていない様子
+  			if(err){
+  				console.log(err);
+  			}else{
+  				var dbData = Chat.find({}, 'messageText img', {sort:{date:-1}, limit:1}, function(err, docs) {
+    				for (var i=0, size=docs.length; i<size; ++i) {
+    					console.log('@@@保存したデータ::' + docs[i].messageText + ' ' +docs[i].img);
+    				}
+    			});
+  			}
+  		});
   		/*var fs = require('fs');
         var writeFile = data.file;
         var writePath = 'public/images/' + data.name;
@@ -139,6 +148,14 @@ io.sockets.on('connection', function(socket) {
         writeStream.end();*/
   	});
 });
+
+//chatの情報をcommitするための関数
+function addDataToChatModel(chat, id, messageText, data){
+  	chat.fromId = id;
+    chat.messageText = messageText;
+	chat.date = new Date().getTime();
+	chat.img = data;
+}
 
 // TODO　画像をアップロードしてDBに保存、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）。
 // type 

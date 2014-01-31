@@ -95,19 +95,11 @@ function sendImgToServer(event){
 }
 
 //イメージの受け取り
-socket.on('notify', function (data) {
-    console.log('notify : ' + data.name);
-    // var writePath = './public/'+data.name + '.' + data.type;
-    var child = document.createElement('img');
-    child.src = 'images/'+ data.name;
-    var dataArea = document.getElementById('dataArea');
-    dataArea.insertBefore(child, dataArea.childNodes[0] || null);
-});
-
 socket.on('userimage', function(from, data){
-    console.log('userimage' + data);
+    console.log('@userimage ' + from + " " + data);
     var child = document.createElement('img');
     child.src = data;
+    child.alt = 'img';
     var dataArea = document.getElementById('dataArea');
     dataArea.insertBefore(child, dataArea.childNodes[0] || null);
 });
