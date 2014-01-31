@@ -9,6 +9,22 @@ var path = require('path');
 
 var app = express();
 
+//mangooseがmongodbを使うために必要なモジュール。使う際は予めmongoを起動させておく必要がある。
+//デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。
+var mongoose = require('mongoose');
+
+//memoTextのスキーマを作成
+var chatTextSchema = mongoose.Schema({
+	fromId:String,
+	messageText:String,
+	date:Date,
+	img:String
+	// img:{file:String, name:String, size:Number}でかいたら何故か駄目だった。
+});
+mongoose.model('chat',chatTextSchema);
+mongoose.connect('mongodb://localhost:27017/chat');
+var Chat = mongoose.model('chat');
+
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
@@ -30,22 +46,6 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index); // route path
 
 var server = http.createServer(app);
-
-//mangooseがmongodbを使うために必要なモジュール。使う際は予めmongoを起動させておく必要がある。
-//デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。
-var mongoose = require('mongoose');
-
-//memoTextのスキーマを作成
-var chatTextSchema = mongoose.Schema({
-	fromId:String,
-	messageText:String,
-	date:Date,
-	img:String
-	// img:{file:String, name:String, size:Number}でかいたら何故か駄目だった。
-});
-mongoose.model('chat',chatTextSchema);
-mongoose.connect('mongodb://localhost:27017/chat');
-var Chat = mongoose.model('chat');
 
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
@@ -143,7 +143,18 @@ function addDataToChatModel(chat, id, messageText, data){
 	chat.img = data;
 }
 
-// TODO　画像をアップロードしてDBに保存、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）。 クリア
+// 済TODO　画像をアップロードしてDBに保存、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）
 // ステータスコード 200系成功、400系はアドレス側　500系はサーバー側のミス
 // ロードバランサーがサーバにうまく振り分ける。
-// app.jsを肥大させたくない、mongooseで要素のネストを読み取ってくれなかった。次のテーマ。
+// nativeでクライエント側のためにAPI作るか？
+
+// TODO セッション。
+// パスワードを保存してハッシュ化して保存して、DBから抜き出して認証していく。
+
+// app.jsを肥大させたくない、サーバ部分、コントローラ部分、mongo部分、ソケット部分を分ける。
+// コントローラが各部位に命令をだし、データだけ取ってくる。ルートでやる仕事をappがやっているのでリファクタリング。
+// やってることと書いてることを意識、似たような機能はまとめる。フォルダの名前や変数名すべてに意味がある。
+//　まとめられるものはまとめる。何回も使う処理はbaseなどのようにまとめてから使う。
+//　利ファクタリングをしてバグを引き起こす「デぐれる」。テストをし、動く事を担保しながら利ファクタリングを行う。
+
+// TODO　mongooseで要素のネストを読み取ってくれなかった。次のテーマ。
