@@ -41,6 +41,7 @@ var chatTextSchema = mongoose.Schema({
 	messageText:String,
 	date:Date,
 	img:String
+	// img:{file:String, name:String, size:Number}でかいたら何故か駄目だった。
 });
 mongoose.model('chat',chatTextSchema);
 mongoose.connect('mongodb://localhost:27017/chat');
@@ -67,6 +68,7 @@ io.sockets.on('connection', function(socket) {
 	    	if (err) { 
 	    		console.log(err);
 	    	}else{
+	    		//var dbData = Chat.find({}, 'date img', {sort:{date:-1}, limit:1}と設定しても、imgのネストの要素が取れなかった。
 	    		//sortは-1だと最新のものから表示される。1だと古いものから表示される
 	    		var dbData = Chat.find({}, 'date', {sort:{date:-1}, limit:1}, function(err, docs) {
     				for (var i=0, size=docs.length; i<size; ++i) {
@@ -92,8 +94,9 @@ io.sockets.on('connection', function(socket) {
     	Chat.find({},'fromId messageText date img',{sort:{date : 1}}, function(err, docs) {
     		console.log('DBから履歴読み出し中');
     		for (var i = 0; i<docs.length ; ++i) {
+    			//incexOfの戻り値はその文字列が見つかった場所の数値が返る。見つからなかった-1が返る。
     			//io.sockets.socket(socket.idで特定の人へメッセージを送ることができる)
-    			if(!docs[i].messageText.indexOf('@image:')){
+    			if(docs[i].messageText.indexOf('@image:') >= 0){
     				io.sockets.socket(socket.id).emit('userimage', docs[i].fromId , docs[i].img);	
     			}else{
     				io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, from:docs[i].fromId});
@@ -112,40 +115,23 @@ io.sockets.on('connection', function(socket) {
 
   	//画像を配信する
   	socket.on('upload', function(data){
-  		console.log('upload' + data.name);
-  		io.sockets.emit('userimage', socket.id, data.file);
-  		var chat = new Chat();
-  		addDataToChatModel(chat, socket.id, '@image:' + data.name ,data.file);
-  		chat.save(function(err){ // ここで保存ができていない様子
-  			if(err){
-  				console.log(err);
-  			}else{
-  				var dbData = Chat.find({}, 'messageText img', {sort:{date:-1}, limit:1}, function(err, docs) {
-    				for (var i=0, size=docs.length; i<size; ++i) {
-    					console.log('@@@保存したデータ::' + docs[i].messageText + ' ' +docs[i].img);
-    				}
-    			});
-  			}
-  		});
-  		/*var fs = require('fs');
-        var writeFile = data.file;
-        var writePath = 'public/images/' + data.name;
-        var writeStream = fs.createWriteStream(writePath);
-        writeStream.on('drain', function () {} )
-        .on('error', function (exception) {
-            console.log("エラーが起きたよ"+exception);
-            console.log("ここがパスだよ。"+ file);
-        })
-        .on('close', function () {
-            //書き込み完了時の処理 リアクタパターンで書かないとノンブロッキングIOモデルなので注意が必要
-            console.log('サーバにデータが来たよ');
-            io.sockets.emit('notify',{name : data.name, type: data.type});
-        })
-        .on('pipe', function (src) {
-
-        }); 
-        writeStream.write(writeFile,'binary'); //バイナリ形式で書き込み指定
-        writeStream.end();*/
+  		console.log('upload' + data.name + ' ' + data.size);
+	  	if(data.size <= 3000000 && (data.type.indexOf('image/png') >= 0 || data.type.indexOf('image/jpeg') >= 0)){
+	  		io.sockets.emit('userimage', socket.id, data.file);
+	  		var chat = new Chat();
+	  		addDataToChatModel(chat, socket.id, '@image:' + data.name ,data.file);
+	  		chat.save(function(err){
+	  			if(err){
+	  				console.log(err);
+	  			}else{
+	  				var dbData = Chat.find({}, 'messageText img', {sort:{date:-1}, limit:1}, function(err, docs) {
+	    				console.log('@@@保存したデータ::' + docs.messageText);
+	    			});
+	  			}
+	  		});
+  		}else{
+  			io.sockets.socket(socket.id).emit('uploaderror','画像サイズまたは形式が適切ではありません。');
+  		}
   	});
 });
 
@@ -157,7 +143,7 @@ function addDataToChatModel(chat, id, messageText, data){
 	chat.img = data;
 }
 
-// TODO　画像をアップロードしてDBに保存、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）。
-// type 
+// TODO　画像をアップロードしてDBに保存、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）。 クリア
 // ステータスコード 200系成功、400系はアドレス側　500系はサーバー側のミス
 // ロードバランサーがサーバにうまく振り分ける。
+// app.jsを肥大させたくない、mongooseで要素のネストを読み取ってくれなかった。次のテーマ。

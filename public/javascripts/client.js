@@ -21,7 +21,7 @@ NS.receivedAction = function(eventName,message,from){
     	case 'ready':
     	if(!NS.selfId){
     		NS.selfId = from;
-    		document.getElementById('connectId').innerHTML = 'yourID: ' + NS.selfId;
+    		document.getElementById('socketId').innerHTML = 'yourID: ' + NS.selfId;
     	}
     	child.innerHTML = from + 'が参加しました';
     	child.style.color = 'red';
@@ -100,8 +100,15 @@ socket.on('userimage', function(from, data){
     var child = document.createElement('img');
     child.src = data;
     child.alt = 'img';
+    child.width = 100;
+    child.height = 100;
     var dataArea = document.getElementById('dataArea');
     dataArea.insertBefore(child, dataArea.childNodes[0] || null);
+    dataArea = null;
+});
+
+socket.on('uploaderror',function(message){
+    window.alert(message);
 });
 
 //http://blog.marcon.me/post/31143865164/send-images-through-websockets

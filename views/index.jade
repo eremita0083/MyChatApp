@@ -6,10 +6,10 @@ block content
 		form(name="sampleForm")
 			//- jadeのheadでscript srcでjsを読み込むことで、ここで関連付けたidが使えるようになる。
 			input(type="text", name="textfield", id="text1")
-			input(type="button", value="書き込み", onclick="sendTextToServer()")
-			input(type="button", value="履歴削除", onclick="removeAllHistory()")
+			input(type="button", value="書き込み", onclick="sendTextToServer()", id='writeBtn')
+			input(type="button", value="履歴削除", onclick="removeAllHistory()", id='removeBtn')
 			br
-			input(type="file", name="fileSelector")
+			input(type="file", name="fileSelector", id='fileSelector')
 			input(type="button", value="img file sending", onclick="sendImgToServer()")
-		p(id="connectId") userId
+		p(id="socketId") userId
 	div(id="dataArea", style="height: 500px; overflow: scroll;")
