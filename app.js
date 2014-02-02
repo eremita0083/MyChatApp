@@ -6,24 +6,12 @@ var express = require('express');
 var routes = require('./routes');
 var http = require('http');
 var path = require('path');
+var chatModel = require('./routes/mydb.js');
 
 var app = express();
 
 //mangooseがmongodbを使うために必要なモジュール。使う際は予めmongoを起動させておく必要がある。
 //デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。
-var mongoose = require('mongoose');
-
-//memoTextのスキーマを作成
-var chatTextSchema = mongoose.Schema({
-	fromId:String,
-	messageText:String,
-	date:Date,
-	img:String
-	// img:{file:String, name:String, size:Number}でかいたら何故か駄目だった。
-});
-mongoose.model('chat',chatTextSchema);
-mongoose.connect('mongodb://localhost:27017/chat');
-var Chat = mongoose.model('chat');
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -39,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+	app.use(express.errorHandler());
 }
 
 // ルートの設定
@@ -48,7 +36,7 @@ app.get('/', routes.index); // route path
 var server = http.createServer(app);
 
 server.listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+	console.log('Express server listening on port ' + app.get('port'));
 });
 
 //serverを作成しlistenした後、socket.ioをrequireしサーバにてlisten
@@ -61,7 +49,8 @@ io.sockets.on('connection', function(socket) {
 	socket.on('message', function(data) {
 		console.log("message");
 		//dbに保存
-    	var chat = new Chat();
+		var model = chatModel.getChatmodel();
+    	var chat = new model;
     	addDataToChatModel(chat,socket.id,data.message,{});
 	    //chat.saveで保存、引数はエラー時の処理の関数
 	    chat.save(function(err) {
@@ -70,7 +59,7 @@ io.sockets.on('connection', function(socket) {
 	    	}else{
 	    		//var dbData = Chat.find({}, 'date img', {sort:{date:-1}, limit:1}と設定しても、imgのネストの要素が取れなかった。
 	    		//sortは-1だと最新のものから表示される。1だと古いものから表示される
-	    		var dbData = Chat.find({}, 'date', {sort:{date:-1}, limit:1}, function(err, docs) {
+	    		var dbData = chatModel.getChatmodel().find({}, 'date', {sort:{date:-1}, limit:1}, function(err, docs) {
     				for (var i=0, size=docs.length; i<size; ++i) {
     					console.log(docs[i].date);
     				}
@@ -91,7 +80,7 @@ io.sockets.on('connection', function(socket) {
     	//DBから履歴を読み取り、送信する
     	//DBにデータがある場合には読み込み、クライアントに送信する。第一引数はクエリ。第二引数の列名は半角スペースで複数記述できる'a b c'。nullなら全列検索。
     	// 第三引数はoption、ソートやlimit。第四引数はコールバック。
-    	Chat.find({},'fromId messageText date img',{sort:{date : 1}}, function(err, docs) {
+    	chatModel.getChatmodel().find({},'fromId messageText date img',{sort:{date : 1}}, function(err, docs) {
     		console.log('DBから履歴読み出し中');
     		for (var i = 0; i<docs.length ; ++i) {
     			//incexOfの戻り値はその文字列が見つかった場所の数値が返る。見つからなかった-1が返る。
@@ -118,7 +107,7 @@ io.sockets.on('connection', function(socket) {
   		console.log('upload' + data.name + ' ' + data.size);
 	  	if(data.size <= 3000000 && (data.type.indexOf('image/png') >= 0 || data.type.indexOf('image/jpeg') >= 0)){
 	  		io.sockets.emit('userimage', socket.id, data.file);
-	  		var chat = new Chat();
+	  		var chat = new chatModel.getChatmodel();
 	  		addDataToChatModel(chat, socket.id, '@image:' + data.name ,data.file);
 	  		chat.save(function(err){
 	  			if(err){
@@ -155,6 +144,6 @@ function addDataToChatModel(chat, id, messageText, data){
 // コントローラが各部位に命令をだし、データだけ取ってくる。ルートでやる仕事をappがやっているのでリファクタリング。
 // やってることと書いてることを意識、似たような機能はまとめる。フォルダの名前や変数名すべてに意味がある。
 //　まとめられるものはまとめる。何回も使う処理はbaseなどのようにまとめてから使う。
-//　利ファクタリングをしてバグを引き起こす「デぐれる」。テストをし、動く事を担保しながら利ファクタリングを行う。
+//　リファクタリングをしてバグを引き起こす「デぐれる」。テストをし、動く事を担保しながらリファクタリングを行う。
 
 // TODO　mongooseで要素のネストを読み取ってくれなかった。次のテーマ。
