@@ -1,6 +1,7 @@
 exports.connectionIo = function(server){
     var chatModel = require('./mydb.js');
     var io = require('socket.io').listen(server);
+
     io.sockets.on('connection', function(socket) {
         console.log("connection");
         // メッセージを受けたときの処理
@@ -44,7 +45,7 @@ exports.connectionIo = function(server){
             io.sockets.emit('message',{eventName:'disconnect',from:id});
         });
 
-        //画像を配信する
+        //画像をアップロードする
         socket.on('upload', function(data){
             console.log('upload' + data.name + ' ' + data.size);
             if(data.size <= 3000000 && (data.type.indexOf('image/png') >= 0 || data.type.indexOf('image/jpeg') >= 0)){

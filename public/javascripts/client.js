@@ -6,7 +6,7 @@ variant: selfId,
 function: receivedAction,
 */
 
-//メッセージ受け取り、参加、退出のルーティング処理と追加処理
+//メッセージ受け取り、参加、退出のルーティング処理とdataareaへの追加処理
 NS.receivedAction = function(eventName,message,from){
 	var child = document.createElement('p');
     var dataArea = document.getElementById('dataArea');
@@ -102,9 +102,10 @@ socket.on('userimage', function(from, data){
     child.alt = 'img';
     child.width = 100;
     child.height = 100;
+    var buff = document.createElement('p');
+    buff.insertBefore(child, buff.childNodes[0] || null);
     var dataArea = document.getElementById('dataArea');
-    dataArea.insertBefore(child, dataArea.childNodes[0] || null);
-    dataArea = null;
+    dataArea.insertBefore(buff, dataArea.childNodes[0] || null);
 });
 
 //imgのアップロードのエラー受け取り

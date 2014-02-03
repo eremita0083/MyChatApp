@@ -7,8 +7,10 @@ var routes = require('./routes');
 var http = require('http');
 var path = require('path');
 var socketServer = require('./routes/socketserver.js');
-
 var app = express();
+
+//session store
+var sessionStore = require('connect-mongo')(express);
 
 //mangooseがmongodbを使うために必要なモジュール。使う際は予めmongoを起動させておく必要がある。
 //デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。
@@ -17,6 +19,22 @@ var app = express();
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.use(express.cookieParser()); // connect-mongo必須。セッションはcookieを使うので必要
+app.use(express.session({
+    secret: 'topsecret',
+    store: new sessionStore({
+        db: 'sessions', // require
+        host: '127.0.0.1', // default: 127.0.0.1
+        username: 'user', // optional
+        password: 'pass', // optional
+        clear_interval: 60 * 60 // Interval in seconds to clear expired sessions. 60 * 60 = 1 hour
+    }),
+    cookie: {
+        httpOnly: false,
+        // 60 * 60 * 1000 = 1800000 msec = 30 minute
+        maxAge: new Date(Date.now() + 60 * 30 * 1000)
+    }
+}));
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.json());
