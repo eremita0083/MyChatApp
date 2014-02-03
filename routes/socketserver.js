@@ -1,5 +1,5 @@
 exports.connectionIo = function(server){
-    var chatModel = require('./mydb.js');
+    var chatModel = require('../db/mydb.js');
     var io = require('socket.io').listen(server);
 
     io.sockets.on('connection', function(socket) {

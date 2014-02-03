@@ -14,7 +14,7 @@ var sessionStore = require('connect-mongo')(express);
 
 //mangooseがmongodbを使うために必要なモジュール。使う際は予めmongoを起動させておく必要がある。
 //デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。
-
+// session は　cookieParser→session→app.routerの順番で記述
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
@@ -23,15 +23,15 @@ app.use(express.cookieParser()); // connect-mongo必須。セッションはcook
 app.use(express.session({
     secret: 'topsecret',
     store: new sessionStore({
-        db: 'sessions', // require
+        db: 'sessions', // 必須
         host: '127.0.0.1', // default: 127.0.0.1
-        username: 'user', // optional
-        password: 'pass', // optional
-        clear_interval: 60 * 60 // Interval in seconds to clear expired sessions. 60 * 60 = 1 hour
+        username: 'user', // 必須ではない
+        password: 'pass', // 必須ではない
+        clear_interval: 60 * 60 // 一時間でセッションクリア
     }),
     cookie: {
         httpOnly: false,
-        // 60 * 60 * 1000 = 1800000 msec = 30 minute
+        // 60 * 60 * 1000 = 1800000 msec = 30分
         maxAge: new Date(Date.now() + 60 * 30 * 1000)
     }
 }));
@@ -52,7 +52,6 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index); // route path
 
 var server = http.createServer(app);
-
 server.listen(app.get('port'), function(){
 	console.log('Express server listening on port ' + app.get('port'));
 });
@@ -60,19 +59,19 @@ server.listen(app.get('port'), function(){
 //socketIo待ちうけ
 socketServer.connectionIo(server);
 
-
-// 済TODO　画像をアップロードしてDBに保存、容量制限をかけること、拡張子で制限をつける（jpg,png,gif）
 // ステータスコード 200系成功、400系はアドレス側　500系はサーバー側のミス
 // ロードバランサーがサーバにうまく振り分ける。
 // nativeでクライエント側のためにAPI作るか？
 
 // TODO セッション。
-// パスワードを保存してハッシュ化して保存して、DBから抜き出して認証していく。
+// パスワードをハッシュ化して保存して、DBから抜き出して認証していく。
 
 // app.jsを肥大させたくない、サーバ部分、コントローラ部分、mongo部分、ソケット部分を分ける。
 // コントローラが各部位に命令をだし、データだけ取ってくる。ルートでやる仕事をappがやっているのでリファクタリング。
 // やってることと書いてることを意識、似たような機能はまとめる。フォルダの名前や変数名すべてに意味がある。
-//　まとめられるものはまとめる。何回も使う処理はbaseなどのようにまとめてから使う。
-//　リファクタリングをしてバグを引き起こす「デぐれる」。テストをし、動く事を担保しながらリファクタリングを行う。
+//　まとめられるものはまとめる。何回も使う処理はbaseなど命名してから使う。
+//　リファクタリングをしてバグを引き起こすことがある。テストをし、動く事を担保しながらリファクタリングを行う。
 
 // TODO　mongooseで要素のネストを読み取ってくれなかった。次のテーマ。
+
+//https://gist.github.com/kkurahar/5551884

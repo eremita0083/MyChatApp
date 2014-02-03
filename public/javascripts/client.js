@@ -112,5 +112,3 @@ socket.on('userimage', function(from, data){
 socket.on('uploaderror',function(message){
     window.alert(message);
 });
-
-//http://blog.marcon.me/post/31143865164/send-images-through-websockets
