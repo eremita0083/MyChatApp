@@ -107,6 +107,7 @@ socket.on('userimage', function(from, data){
     dataArea = null;
 });
 
+//imgのアップロードのエラー受け取り
 socket.on('uploaderror',function(message){
     window.alert(message);
 });
