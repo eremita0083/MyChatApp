@@ -1,17 +1,17 @@
-doctype html
-html
-	head
-		title= 'chat'
-		meta(charset='utf-8')
-		link(rel='stylesheet', href='/stylesheets/bootstrap.css')
-		script(src='/socket.io/socket.io.js')
-		script(src='/javascripts/login.js')
-	body
-		h1= 'login'
-		p= 'please enter your id and password'
-		form(name='loginForm')
-			input(type='text', name='loginUserIdTextfield',value='name')
-			br
-			input(type='text', name='loginPasswordTextfield', value= 'password')
-			br
-			input(type='button',value='login', onclick='doLogin()')
+if user
+  form(method='post', action='/')
+    input(name='_method', type='hidden', value='DELETE')
+    p　#{user.name}さん、こんにちは!
+      a(href='javascript:', onClick='forms[0].submit()') [logout]
+else
+  p please login
+  form(method='post', action='/')
+    fieldset
+      legend login
+      p
+        label(for='user[name]') ユーザ名:
+        input(name='user[name]')
+      p
+        label(for='user[pwd]') パスワード:
+        input(type='password', name='user[pwd]')
+      input(type='submit')

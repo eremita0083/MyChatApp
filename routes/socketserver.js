@@ -24,7 +24,7 @@ exports.connectionIo = function(server){
             //DBにデータがある場合には読み込み、クライアントに送信する。第一引数はクエリ。第二引数の列名は半角スペースで複数記述できる'a b c'。nullなら全列検索。
             // 第三引数はoption、ソートやlimit。第四引数はコールバック。
             var docs = chatModel.getAllContents(function(docs){
-                console.log('@@@@' + docs.fromId);
+                console.log('@ready' + docs.fromId);
                 for (var i = 0; i<docs.length ; ++i) {
                 //incexOfの戻り値はその文字列が見つかった場所の数値が返る。見つからなかった-1が返る。
                 //io.sockets.socket(socket.idで特定の人へメッセージを送ることができる)
@@ -34,8 +34,8 @@ exports.connectionIo = function(server){
                         io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, from:docs[i].fromId});
                     }
                 }
+                io.sockets.emit('message',{eventName:'ready' ,from:id});
             });
-            io.sockets.emit('message',{eventName:'ready' ,from:id});
         });
 
         //IEがうまく動かないので、readyと同じ処理を二つ書いた（これだとなぜかうまく動作する）

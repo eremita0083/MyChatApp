@@ -7,10 +7,11 @@ var routes = require('./routes');
 var http = require('http');
 var path = require('path');
 var socketServer = require('./routes/socketserver.js');
+
 var app = express();
 
 //session store
-var sessionStore = require('connect-mongo')(express);
+//var sessionStore = require('connect-mongo')(express);
 
 //mangooseがmongodbを使うために必要なモジュール。使う際は予めmongoを起動させておく必要がある。
 //デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。
@@ -19,27 +20,13 @@ var sessionStore = require('connect-mongo')(express);
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-app.use(express.cookieParser()); // connect-mongo必須。セッションはcookieを使うので必要
-app.use(express.session({
-    secret: 'topsecret',
-    store: new sessionStore({
-        db: 'sessions', // 必須
-        host: '127.0.0.1', // default: 127.0.0.1
-        username: 'user', // 必須ではない
-        password: 'pass', // 必須ではない
-        clear_interval: 60 * 60 // 一時間でセッションクリア
-    }),
-    cookie: {
-        httpOnly: false,
-        // 60 * 60 * 1000 = 1800000 msec = 30分
-        maxAge: new Date(Date.now() + 60 * 30 * 1000)
-    }
-}));
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
+app.use(express.cookieParser('cimagel')); // セッション管理に必須。
+app.use(express.session());// セッション管理に必須。
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -48,8 +35,13 @@ if ('development' == app.get('env')) {
 	app.use(express.errorHandler());
 }
 
-// ルートの設定
-app.get('/', routes.index); // route path
+// ルートの設定 get post del put all が使える。
+//第１引数はアドレスのホスト名の後ろ、第二引数はroutes
+//つまり第一引数をたたいたら、第二引数の処理が行われるということ。第三引数はその処理を渡す先
+app.get('/', routes.index);
+app.post('/',routes.login, routes.index);
+app.del('/',routes.logout, routes.index);
+app.get('/about',routes.about);
 
 var server = http.createServer(app);
 server.listen(app.get('port'), function(){

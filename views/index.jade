@@ -1,15 +1,19 @@
 extends layout
 
 block content
-	h1= title
-	div
-		form(name="sampleForm")
-			//- jadeのheadでscript srcでjsを読み込むことで、ここで関連付けたidが使えるようになる。
-			input(type="text", name="textfield", id="text1")
-			input(type="button", value="書き込み", onclick="sendTextToServer()", id='writeBtn')
-			input(type="button", value="履歴削除", onclick="removeAllHistory()", id='removeBtn')
-			br
-			input(type="file", name="fileSelector", id='fileSelector')
-			input(type="button", value="img file sending", onclick="sendImgToServer()")
-		p#socketId userId
-	div#dataArea(style="height: 500px; overflow: scroll;")
+	include login.jade
+	if user
+		h1= title
+		div
+			form(name="sampleForm")
+				//- jadeのheadでscript srcでjsを読み込むことで、ここで関連付けたidが使えるようになる。
+				input(type="text", name="textfield", id="text1")
+				input(type="button", value="書き込み", onclick="sendTextToServer()", id='writeBtn')
+				input(type="button", value="履歴削除", onclick="removeAllHistory()", id='removeBtn')
+				br
+				input(type="file", name="fileSelector", id='fileSelector')
+				input(type="button", value="img file sending", onclick="sendImgToServer()")
+			p#socketId userId
+		div#dataArea(style="height: 500px; overflow: scroll;")
+	else
+		p if you will login, you will be able to use chat.

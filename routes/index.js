@@ -1,12 +1,30 @@
+var users = { 'a': 'a' , 'b':'b' , 'c': 'c'}; // ユーザデータベース
 
-/*
- * GET home page.
- */
-
-exports.index = function(req, res){
-	res.render('index', { title: 'chat' });
+exports.login = function(req, res, next) {
+	var user = req.body.user;
+	if (user) {
+		Object.keys(users).forEach(function(name) {
+			if (user.name === name && user.pwd === users[name]) {
+				req.session.user = {
+					name: user.name,
+					pwd: user.pwd
+				};
+			}
+		});
+	}
+	next();
 };
 
-exports.add = function(req, res) {
-	res.render('login', { title: 'chat' });
+exports.logout = function(req, res, next) {
+	delete req.session.user;
+	next();
+};
+
+exports.index = function(req, res){
+  res.render('index', { title: 'my chat app', user: req.session.user });
+};
+
+exports.about = function(req,res){
+	res.writeHead(200,{'Content-Type':'text/plain; charset=utf-8'});
+	res.end('name: my chat app');
 };
