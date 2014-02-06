@@ -1,0 +1,13 @@
+span#messageApplyLogin{
+	margin: 5px;
+	font-size: 18px;
+}
+
+form#loginForm{
+	border-style: ridge;
+	border-radius: 3ps;
+	border-color: #cccccc;
+	background-color: #dddddd;
+	width: 40%;
+	padding-left: 9px;
+}

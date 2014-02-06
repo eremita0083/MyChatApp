@@ -1,17 +1,17 @@
-if user
-  form(method='post', action='/')
-    input(name='_method', type='hidden', value='DELETE')
-    p　#{user.name}さん、こんにちは!
-      a(href='javascript:', onClick='forms[0].submit()') [logout]
-else
-  p please login
-  form(method='post', action='/')
-    fieldset
-      legend login
-      p
-        label(for='user[name]') ユーザ名:
-        input(name='user[name]')
-      p
-        label(for='user[pwd]') パスワード:
-        input(type='password', name='user[pwd]')
-      input(type='submit')
+extends layout
+
+block content
+    p please login
+    form#loginForm(method='post', action='/test')
+        fieldset
+            legend login
+            p
+                label(for='user[name]') ユーザ名:
+                input(name='user[name]')
+            p
+                label(for='user[pwd]') パスワード:
+                input(type='password', name='user[pwd]')
+            input(type='submit')
+    br
+    p= status
+    span#messageApplyLogin if you will login, you will be able to use chat.

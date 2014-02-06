@@ -3,7 +3,8 @@
  * Module dependencies.
  */
 var express = require('express');
-var routes = require('./routes');
+var routes = require('./routes/chat');
+var auth = require('./routes/auth');
 var http = require('http');
 var path = require('path');
 var socketServer = require('./routes/socketserver.js');
@@ -37,11 +38,11 @@ if ('development' == app.get('env')) {
 
 // ルートの設定 get post del put all が使える。
 //第１引数はアドレスのホスト名の後ろ、第二引数はroutes
-//つまり第一引数をたたいたら、第二引数の処理が行われるということ。第三引数はその処理を渡す先
-app.get('/', routes.index);
-app.post('/',routes.login, routes.index);
-app.del('/',routes.logout, routes.index);
-app.get('/about',routes.about);
+//つまり第一引数をたたいたら、第二引数の処理が行われるということ。第三引数はnextでその処理を渡す先
+app.get('/login', auth.login);
+app.post('/test',auth.test);
+app.get('/chat',  routes.chat);
+app.del('/logout', auth.logout);
 
 var server = http.createServer(app);
 server.listen(app.get('port'), function(){
@@ -51,11 +52,12 @@ server.listen(app.get('port'), function(){
 //socketIo待ちうけ
 socketServer.connectionIo(server);
 
+// 済みTODO socket.ioで画像を送り、DBに保存する
 // ステータスコード 200系成功、400系はアドレス側　500系はサーバー側のミス
 // ロードバランサーがサーバにうまく振り分ける。
 // nativeでクライエント側のためにAPI作るか？
 
-// TODO セッション。
+// 済　TODO セッション管理。　
 // パスワードをハッシュ化して保存して、DBから抜き出して認証していく。
 
 // app.jsを肥大させたくない、サーバ部分、コントローラ部分、mongo部分、ソケット部分を分ける。
@@ -64,6 +66,9 @@ socketServer.connectionIo(server);
 //　まとめられるものはまとめる。何回も使う処理はbaseなど命名してから使う。
 //　リファクタリングをしてバグを引き起こすことがある。テストをし、動く事を担保しながらリファクタリングを行う。
 
-// TODO　mongooseで要素のネストを読み取ってくれなかった。次のテーマ。
+// TODO　mongooseで要素のネストを読み取ってくれなかった。
 
-//https://gist.github.com/kkurahar/5551884
+//　indexが
+//　ログイン判定の処理はとりあえず
+
+// https://gist.github.com/kkurahar/555188

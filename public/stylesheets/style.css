@@ -7,11 +7,12 @@ a {
 	color: #00B7FF;
 }
 
-div {
+div#inputForm, #dataArea {
 	border-style: ridge;
 	margin: 10px;
 	padding: 10px;
 	background-color: #bbbbbb;
+	width: 60%;
 }
 
 input#text1,#writeBtn,#removeBtn,#fileSelector {
@@ -19,5 +20,10 @@ input#text1,#writeBtn,#removeBtn,#fileSelector {
 }
 
 p#socketId{
-	margin:  5px;
+	margin: 5px;
+	text-align: left;
+}
+p#userName{
+	margin: 5px;
+	text-align: left;
 }

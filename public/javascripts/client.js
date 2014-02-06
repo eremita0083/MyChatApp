@@ -2,7 +2,7 @@ var socket = io.connect('http://localhost:3000');
 
 var NS = {};
 /*
-variant: selfId,
+var: selfId,
 function: receivedAction,
 */
 
@@ -19,11 +19,12 @@ NS.receivedAction = function(eventName,message,from){
     	child.style.color = 'blue';
     	break;
     	case 'ready':
+        //socketIdを保存
     	if(!NS.selfId){
     		NS.selfId = from;
-    		document.getElementById('socketId').innerHTML = 'yourID: ' + NS.selfId;
+    		document.getElementById('socketId').innerHTML = 'あなたのIDは ' + NS.selfId + 'です';
     	}
-    	child.innerHTML = from + 'が参加しました';
+    	child.innerHTML = user.name + 'が参加しました';
     	child.style.color = 'red';
     	break;
     }
@@ -44,7 +45,10 @@ socket.on('message', function (data) {
 
 //UserIdを画面に表示し、参加したことを知らせる
 socket.emit('ready','ready');
+/*document.getElementById('userName').value　これでuserNameを送信できる
+　　TODO　socketIdではなく
 
+*/
 //ボタンを押したらテキストをサーバーに送る処理
 function sendTextToServer(){
 	//これでinput textからテキストを取得
@@ -57,12 +61,12 @@ function sendTextToServer(){
 	console.log('送信したデータ：' + text);
 }
 
-//ボタンを押すことでデータベースの履歴を削除する TODO
+//ボタンを押すことでデータベースの履歴を削除する TODO 未実装
 function removeAllHistory(){
 	window.alert('removing');
 }
 
-//退出時の処理
+//退出時の処理　TODO　ここだけで退出を確認するのはよくない。logoutを押したタイミングも加える
 window.onbeforeunload = function (e) {
 	var e = e || window.event;
 	// IE Firefox など

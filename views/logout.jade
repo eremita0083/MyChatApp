@@ -1,0 +1,4 @@
+form(method='post', action='/logout')
+	input(name='_method', type='hidden', value='DELETE')
+	p(white='false') #{user.name}さん、こんにちは!
+		a(href='javascript:', onClick='forms[0].submit()') [logout]
