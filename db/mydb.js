@@ -1,3 +1,5 @@
+//mangooseがmongodbを使うために必要なモジュール。使う際は予めmongoを起動させておく必要がある。
+//デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。
 var mongoose = require('mongoose');
 
 //memoTextのスキーマを作成

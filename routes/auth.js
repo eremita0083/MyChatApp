@@ -21,22 +21,33 @@ exports.test = function(req, res, next) {
 	console.log('username：：' + user.name +'userpsw：：' + user.pwd );
 	console.log('ユーザーの数：：' + usersLength);
 	var i =0;
-	//POST idとpswの正誤認証
+	var route = false;
+	//POST idとpswの正誤認証 forEach文はbreakがデフォでは使えない仕様。
 	Object.keys(users).forEach(function(name) {
+		i += 1;
 		if (user.name === name && user.pwd === users[name]) {
-			console.log('idとpsw正解');
 			req.session.user = {
 				name: user.name,
 				pwd: user.pwd
 			};
-			// res.redirect('/chat');
-			res.render('chat', { title: 'my chat app', user: req.session.user });
+			route = true
 		}
-		/*i += 1;
-		if(i == usersLength){
-			console.log('idとpsw間違い');
-			res.redirect('/login');
-		}*/
+		if(i===usersLength){
+			switch(route){
+				case false:
+					console.log('idとpsw間違い');
+					res.redirect('/login');
+					break;
+				case true:
+					console.log('idとpsw正解');
+					// res.redirect('/chat');//ページ遷移はredirect
+					res.status('200');
+					res.location('http://localhost:3000/chat'); //　TODO locationの使い方
+					break;
+			}
+		}
 	});
-	
 };
+
+// res.location headerへの設定のエイリアス？URLを指定し、 
+// res.status これでステータスコードを指定する必要がある
