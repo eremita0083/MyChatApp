@@ -23,6 +23,7 @@ var userSchema = mongoose.Schema({
 mongoose.model('user',userSchema);
 mongoose.createConnection('mongodb://localhost:27017/user');
 var User = mongoose.model('user');
+//ひとつのｄｂインスタンスに複数のコネクトを行う場合は、二つ目以降のコネクトはconect()ではなくcreateConnection()を使う。
 
 //contentsを保存
 exports.setContents = function(id, messageText, data){
@@ -63,31 +64,8 @@ exports.getAllContents = function (find){
     });
 }
 
-//userdataの保存
-exports.setUserData = function(userName,userPass,error){
-	var user = new User;
-	user.name = userName;
-	user.password = userPass;
-	user.date = new Date().getTime();
-	var errStr;
-	user.save(function(err){
-		if(err){
-			console.log(err);
-			errStr = 'err';
-		}else{
-	    	var dbData = User.find({}, 'name password date', {sort:{date:-1}, limit:1}, function(err, docs) {
-    			console.log('@@@保存した日時:' + docs[0].date || docs.date); //GFIXME この書き方はIEに引っかかる
-    			console.log('@@@保存したユーザ名:' + docs[0].name || docs.name);
-    			console.log('@@@保存したpass名:' + docs[0].password || docs.password);
-    		});
-    		errStr = '';
-    	}
-    		error(errStr);
-	});
-}
-
 //userDataの取得
-exports.getUserData = function (username, userpass, find){
+var getUserData = function (username, userpass, find){
 	User.find({name:username, password:userpass},'name password date',{sort:{date : 1}}, function(err, docs) {
     	if(err){
     		console.log('@失敗　DBから履歴読み出し失敗');
@@ -96,4 +74,40 @@ exports.getUserData = function (username, userpass, find){
     		find(docs);
     	}
     });
+}
+exports.getUserData = getUserData;
+
+//userdataの保存
+exports.setUserData = function(userName,userPass,errorConfirm){
+	var errStr;
+	getUserData(userName,userPass,function(docs){
+		var userLength = docs.length;
+		console.log('同じ名前のユーザ数は'+ userLength+ '人です');
+		if(userLength >= 1 ){
+			console.log('ユーザ pass dupricate です');
+			errStr = 'dup';
+			errorConfirm(errStr);
+			return;
+		}else{
+			var user = new User;
+			user.name = userName;
+			user.password = userPass;
+			user.date = new Date().getTime();
+			user.save(function(err){
+				if(err){
+					console.log(err);
+					errStr = 'err';
+				}else{
+			    	var dbData = User.find({}, 'name password date', {sort:{date:-1}, limit:1}, function(err, docs) {
+		    			console.log('@@@保存した日時:' + docs[0].date || docs.date); //GFIXME この書き方はIEに引っかかる
+		    			console.log('@@@保存したユーザ名:' + docs[0].name || docs.name);
+		    			console.log('@@@保存したpass名:' + docs[0].password || docs.password);
+		    		});
+		    		errStr = '';
+		    	}
+		    	errorConfirm(errStr);
+			});
+		}
+	});
+	
 }

@@ -20,11 +20,11 @@ NS.receivedAction = function(eventName,message,from){
     	break;
     	case 'ready':
         //socketIdを保存
-    	/*if(!NS.selfId){
+    	if(!NS.selfId){
     		NS.selfId = from;
     		document.getElementById('socketId').innerHTML = 'あなたのIDは ' + NS.selfId + 'です';
-    	}*/
-    	child.innerHTML = user.name + 'が参加しました';
+    	}
+    	child.innerHTML = from + 'が参加しました';
     	child.style.color = 'red';
     	break;
     }
@@ -45,10 +45,9 @@ socket.on('message', function (data) {
 
 //UserIdを画面に表示し、参加したことを知らせる
 socket.emit('ready','ready');
-/*document.getElementById('userName').value　これでuserNameを送信できる
-　　TODO　socketIdではなく
-
+/*document.getElementById('userName').value　これでinputからuserNameを取得できる
 */
+
 //ボタンを押したらテキストをサーバーに送る処理
 function sendTextToServer(){
 	//これでinput textからテキストを取得

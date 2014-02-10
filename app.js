@@ -35,7 +35,7 @@ if ('development' == app.get('env')) {
 
 // ルートの設定 get post del put が使えるが、通常はget,postのみを使う。
 //第１引数はアドレスのホスト名の後ろ、第二引数はroutes
-//つまり第一引数をたたいたら、第二引数の処理が行われるということ。第三引数はnextでその処理を渡す先
+//つまり第一引数をたたいたら、第二引数の処理が行われるということ。
 app.get('/login', auth.login);
 app.get('/signup',auth.signup);
 app.post('/signupnow',auth.signupnow);
@@ -66,7 +66,8 @@ socketServer.connectionIo(server);
 //　リファクタリングをしてバグを引き起こすことがある。テストをし、動く事を担保しながらリファクタリングを行う。
 
 // TODO　mongooseで要素のネストを読み取ってくれなかった。
-
+//　next()はapp.jsのapp.use～の部分をひとつ下に下り読み込み実行するだけのもの。使えない。
+// redirect時はsessionに値を持たせ、遷移先でsessionから消す。
 
 //　済 TODO　ログイン判定の処理
 //　TODO chatページを見れないようにしたい。これは仕様。チャット機能をできないようにする。
@@ -74,5 +75,6 @@ socketServer.connectionIo(server);
 // TODO　友達、ルーム。発言をユーザー情報を保持しておく。リアルタイムでログイン状態が見れる。
 // csrf csrf対策をしていないwebサイトにアクセスした人を攻撃用のページに遷移させる
 
-// https://gist.github.com/kkurahar/555188
-// http://taro-tnk.hatenablog.com/entry/2012/12/27/130559
+// https://gist.github.com/kkurahar/555188 connectmongo でsession
+// http://taro-tnk.hatenablog.com/entry/2012/12/27/130559  bootstrap
+// http://kikuchy.hatenablog.com/entry/2013/07/03/042221  express + passport

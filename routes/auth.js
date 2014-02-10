@@ -8,7 +8,14 @@ for(var j in users){
 var db = require('../db/mydb.js');
 
 exports.login = function(req, res, next) {
-	res.render('login', { title: 'my chat app', status:'init'});
+	var saveStatus;
+	if(req.session.saveStatus){
+		saveStatus = req.session.saveStatus;
+		delete req.session.saveStatus;
+	}else{
+		saveStatus = 'welcome';
+	}
+	res.render('login', { title: 'my chat app', status:saveStatus});
 };
 
 //logoutしたらsessionの情報を削除し、loginに飛ばす
@@ -52,15 +59,18 @@ exports.signup = function(req, res, next) {
 exports.signupnow = function(req, res, next) {
 	var user = req.body.user;
 	db.setUserData(user.name,user.pwd,function(errStr){
-		console.log('setUserData済み');
 		var saveStatus;
-		if(errStr){
+		if(errStr === 'err'){
 			console.log('でーた保存失敗');
-			saveStatus='data could not be saved';
+			saveStatus = 'data could not be saved';
+		}else if(errStr === 'dup'){
+			console.log('でーた保存失敗');
+			saveStatus = 'id or password is dupricated';
 		}else{
-			saveStatus='data is saved';
+			console.log('でーた保存成功');
+			saveStatus = 'data is saved';
 		}
-		console.log('でーた保存成功');
+		req.session.saveStatus = saveStatus;
 		res.redirect('/login');
 	});
 };
