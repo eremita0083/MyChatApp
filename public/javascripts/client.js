@@ -20,10 +20,10 @@ NS.receivedAction = function(eventName,message,from){
     	break;
     	case 'ready':
         //socketIdを保存
-    	if(!NS.selfId){
+    	/*if(!NS.selfId){
     		NS.selfId = from;
     		document.getElementById('socketId').innerHTML = 'あなたのIDは ' + NS.selfId + 'です';
-    	}
+    	}*/
     	child.innerHTML = user.name + 'が参加しました';
     	child.style.color = 'red';
     	break;

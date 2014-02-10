@@ -37,6 +37,8 @@ if ('development' == app.get('env')) {
 //第１引数はアドレスのホスト名の後ろ、第二引数はroutes
 //つまり第一引数をたたいたら、第二引数の処理が行われるということ。第三引数はnextでその処理を渡す先
 app.get('/login', auth.login);
+app.get('/signup',auth.signup);
+app.post('/signupnow',auth.signupnow);
 app.post('/test',auth.test);
 app.get('/chat',  routes.chat);
 app.del('/logout', auth.logout);
