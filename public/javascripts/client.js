@@ -1,30 +1,23 @@
 var socket = io.connect('http://localhost:3000');
-
 var NS = {};
 /*
-var: selfId,
 function: receivedAction,
 */
 
 //メッセージ受け取り、参加、退出のルーティング処理とdataareaへの追加処理
-NS.receivedAction = function(eventName,message,from){
+NS.receivedAction = function(eventName,message,name){
 	var child = document.createElement('p');
     var dataArea = document.getElementById('dataArea');
     switch(eventName){
     	case 'message':
-    	child.innerHTML = from + ': ' + message;
+    	child.innerHTML = name + ': ' + message;
     	break;
     	case 'disconnect':
-    	child.innerHTML = from + 'が退出しました';
+    	child.innerHTML = name + 'が退出しました';
     	child.style.color = 'blue';
     	break;
     	case 'ready':
-        //socketIdを保存
-    	if(!NS.selfId){
-    		NS.selfId = from;
-    		document.getElementById('socketId').innerHTML = 'あなたのIDは ' + NS.selfId + 'です';
-    	}
-    	child.innerHTML = from + 'が参加しました';
+    	child.innerHTML = name + 'が参加しました';
     	child.style.color = 'red';
     	break;
     }
@@ -35,28 +28,31 @@ NS.receivedAction = function(eventName,message,from){
 socket.on('message', function (data) {
     console.log('message received!');
     var mes = data.message;
-    var from = data.from;
+    var name = data.name;
     var eName = data.eventName;
     console.log('イベント名:' + eName);
     console.log('メッセージ:' + mes);
-    console.log('id:' + from);
-    NS.receivedAction(eName,mes,from);
+    console.log('name:' + name);
+    NS.receivedAction(eName,mes,name);
 });
 
 //UserIdを画面に表示し、参加したことを知らせる
-socket.emit('ready','ready');
+socket.emit('ready',document.getElementById('userName'));
+//TODO
 /*document.getElementById('userName').value　これでinputからuserNameを取得できる
 */
 
+//idとnameだとidでとる方が早い。
 //ボタンを押したらテキストをサーバーに送る処理
 function sendTextToServer(){
 	//これでinput textからテキストを取得
-	var text = document.sampleForm.textfield.value; // form属性にname、フォームに属するinputにname属性を付与するとこのように使える。ハイフンは入れない
-	// var text = document.getElementById("text1").value; //ID属性を指定していたならこちらでもよい。
-	var now = new Date();
+	var text = document.getElementById('text1').value; // form属性にname、フォームに属するinputにname属性を付与するとこのように使える。ハイフンは入れない
+	// var text = document.getElementById("userName").value; //ID属性を指定していたならこちらでもよい。
+	var userName = document.getElementById('userName').value;
+    var now = new Date();
     console.log(now.getTime());
-	socket.emit('message',{message:text, date:now.getTime()});
-	// alert('「' + text + '」を送信しました');
+    //TODO dummydata あとでuserNameに置き換えたいが、なぜかuserNamwのvalueが取れない。
+	socket.emit('message',{ message:text, date:now.getTime(), name:'aaa'});
 	console.log('送信したデータ：' + text);
 }
 
@@ -67,15 +63,15 @@ function removeAllHistory(){
 
 //退出時の処理　TODO　ここだけで退出を確認するのはよくない。logoutを押したタイミングも加える
 window.onbeforeunload = function (e) {
-	var e = e || window.event;
+	/*var e = e || window.event;
 	// IE Firefox など
 	if (e) {
-		socket.emit('disconnect','disconnect');
+		socket.emit('disconnect',{eventName:'disconnect',name:document.getElementById("userName").value});
 		return;
 	}
-	// saffari 用
-	socket.emit('disconnect','disconnect');
-	return;
+	// saffari 用*/
+	socket.emit('disconnect',{eventName:'disconnect', name:document.getElementById('userName').value});
+	/*return;*/
 }
 
 //イメージの送信
@@ -88,9 +84,10 @@ function sendImgToServer(event){
     var reader = new FileReader();
     reader.onload = function(event) {
         data.file = event.target.result;
-        data.name = file.name;
+        data.filename = file.name;
         data.type = type;
         data.size = file.size;
+        data.name = document.getElementById('userName').value;
         socket.emit('upload', data);
         console.log('size'+ data.size + ' type' + data.type);
     }
@@ -98,8 +95,8 @@ function sendImgToServer(event){
 }
 
 //イメージの受け取り
-socket.on('userimage', function(from, data){
-    console.log('@userimage ' + from + " " + data);
+socket.on('userimage', function(name, data){
+    console.log('@userimage ' + name + " " + data);
     var child = document.createElement('img');
     child.src = data;
     child.alt = 'img';

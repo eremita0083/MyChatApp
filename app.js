@@ -25,7 +25,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //routerの後ろに書くことでrouterで指定した以外のlocationへのアクセスをloginへ遷移するようにできる
 app.use(function(req, res, next){
-    res.redirect('/login');
+	if(req.path==='/'){
+	    res.redirect('/login');
+	}
 });
 
 // development only　開発終了したら削除してもよい
@@ -70,8 +72,8 @@ socketServer.connectionIo(server);
 // redirect時はsessionに値を持たせ、遷移先でsessionから消す。
 
 //　済 TODO　ログイン判定の処理
-//　TODO chatページを見れないようにしたい。これは仕様。チャット機能をできないようにする。
-// TODO 登録ページの作成。connect-mongo。ｄｂ見るのはログイン画面で。
+//　TODO バックボタンから遷移したらチャット機能を使えないようにする。
+// TODO済 登録ページの作成。ｄｂ見るのはログイン画面で。
 // TODO　友達、ルーム。発言をユーザー情報を保持しておく。リアルタイムでログイン状態が見れる。
 // csrf csrf対策をしていないwebサイトにアクセスした人を攻撃用のページに遷移させる
 

@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 
 //memoTextのスキーマを作成
 var chatTextSchema = mongoose.Schema({
-	fromId:String,
+	name:String,
 	messageText:String,
 	date:Date,
 	img:String
@@ -26,9 +26,9 @@ var User = mongoose.model('user');
 //ひとつのｄｂインスタンスに複数のコネクトを行う場合は、二つ目以降のコネクトはconect()ではなくcreateConnection()を使う。
 
 //contentsを保存
-exports.setContents = function(id, messageText, data){
+exports.setContents = function(name, messageText, data){
 	var chat = new Chat;
-	addDataToChatmodel(chat, id, messageText, data);
+	addDataToChatmodel(chat, name, messageText, data);
 	//chat.saveで保存、引数はエラー時の処理の関数
 	chat.save(function(err) {
 	    if (err) { 
@@ -45,8 +45,8 @@ exports.setContents = function(id, messageText, data){
 }
 
 //チャットモデルに保存するデータを追加する。
-var addDataToChatmodel = function(chat, id, messageText, data){
-  	chat.fromId = id;
+var addDataToChatmodel = function(chat, name, messageText, data){
+  	chat.name = name;
     chat.messageText = messageText;
 	chat.date = new Date().getTime();
 	chat.img = data;
@@ -54,7 +54,10 @@ var addDataToChatmodel = function(chat, id, messageText, data){
 
 //全データのゲッター
 exports.getAllContents = function (find){
-	Chat.find({},'fromId messageText date img',{sort:{date : 1}}, function(err, docs) {
+	//DBから履歴を読み取り、送信する
+    //DBにデータがある場合には読み込み、クライアントに送信する。第一引数はクエリ。第二引数の列名は半角スペースで複数記述できる'a b c'。nullなら全列検索。
+    // 第三引数はoption、ソートやlimit。第四引数はコールバック。
+	Chat.find({},'name messageText date img',{sort:{date : 1}}, function(err, docs) {
     	if(err){
     		console.log('@失敗　DBから履歴読み出し失敗');
     	}else{
@@ -109,5 +112,4 @@ exports.setUserData = function(userName,userPass,errorConfirm){
 			});
 		}
 	});
-	
 }

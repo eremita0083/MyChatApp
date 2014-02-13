@@ -1,5 +1,5 @@
 form(method='post', action='/logout')
 	input(name='_method', type='hidden', value='DELETE')
-	p(white='false') #{user.name}さん、こんにちは!
+	p(white='false', value=user.name) #{user.name}さん、こんにちは!
 		a(href='javascript:', onclick='forms[0].submit()') [logout]
 //-	input(type="hidden", name="_csrf", value= '_csrf') csrf対策
