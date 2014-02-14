@@ -27,19 +27,19 @@ exports.connectionIo = function(server){
                 //incexOfの戻り値はその文字列が見つかった場所の数値が返る。見つからなかった-1が返る。
                 //io.sockets.socket(socket.idで特定の人へメッセージを送ることができる)
                     if(docs[i].messageText.indexOf('@image:') >= 0){
-                        io.sockets.socket(socket.id).emit('userimage', docs[i].name , docs[i].img);	
+                        io.sockets.socket(socket.id).emit('userimage', {filename:docs[i].name , filedata:docs[i].img});	
                     }else{
                         io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, name:docs[i].name});
                     }
                 }
-                io.sockets.emit('message',{eventName:'ready' ,name:data});
+                io.sockets.emit('message',{eventName:'ready' ,name:data, message:''});
             });
         });
 
         //退出時、ログアウト時の処理。TODO dataからデータが取り出せない。
         socket.on('disconnect', function(data){
             console.log('disconnect');
-            io.sockets.emit('message',{eventName:'disconnect',name:'disconnect'});
+            socket.broadcast.emit('message',{eventName:'disconnect', name:data, message:''});
         });
 
         //画像をアップロードする

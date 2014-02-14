@@ -1,8 +1,11 @@
-var socket = io.connect('http://localhost:3000');
-var NS = {};
+
 /*
+var : userName
 function: receivedAction,
 */
+var socket = io.connect('http://localhost:3000');
+var NS = {};
+NS.userName = document.getElementById('aaaa'); //FIXME　ここでnullが帰ってきている
 
 //メッセージ受け取り、参加、退出のルーティング処理とdataareaへの追加処理
 NS.receivedAction = function(eventName,message,name){
@@ -37,7 +40,7 @@ socket.on('message', function (data) {
 });
 
 //UserIdを画面に表示し、参加したことを知らせる
-socket.emit('ready',document.getElementById('userName'));
+socket.emit('ready',NS.userName);
 //TODO
 /*document.getElementById('userName').value　これでinputからuserNameを取得できる
 */
@@ -46,19 +49,18 @@ socket.emit('ready',document.getElementById('userName'));
 //ボタンを押したらテキストをサーバーに送る処理
 function sendTextToServer(){
 	//これでinput textからテキストを取得
-	var text = document.getElementById('text1').value; // form属性にname、フォームに属するinputにname属性を付与するとこのように使える。ハイフンは入れない
+	var text = document.getElementById('text1').value; // form属性にname、フォームに属するinputにname属性を付与して、.でつないでもいける。
 	// var text = document.getElementById("userName").value; //ID属性を指定していたならこちらでもよい。
-	var userName = document.getElementById('userName').value;
     var now = new Date();
     console.log(now.getTime());
     //TODO dummydata あとでuserNameに置き換えたいが、なぜかuserNamwのvalueが取れない。
-	socket.emit('message',{ message:text, date:now.getTime(), name:'aaa'});
+	socket.emit('message',{ message:text, date:now.getTime(), name:NS.userName});
 	console.log('送信したデータ：' + text);
 }
 
 //ボタンを押すことでデータベースの履歴を削除する TODO 未実装
 function removeAllHistory(){
-	window.alert('removing');
+	alert('removing');
 }
 
 //退出時の処理　TODO　ここだけで退出を確認するのはよくない。logoutを押したタイミングも加える
@@ -70,7 +72,7 @@ window.onbeforeunload = function (e) {
 		return;
 	}
 	// saffari 用*/
-	socket.emit('disconnect',{eventName:'disconnect', name:document.getElementById('userName').value});
+	socket.emit('disconnect',{eventName:'disconnect', name:NS.userName});
 	/*return;*/
 }
 
@@ -87,7 +89,8 @@ function sendImgToServer(event){
         data.filename = file.name;
         data.type = type;
         data.size = file.size;
-        data.name = document.getElementById('userName').value;
+        //FIXME 値が取れてない
+        data.name = NS.userName;
         socket.emit('upload', data);
         console.log('size'+ data.size + ' type' + data.type);
     }
@@ -95,10 +98,10 @@ function sendImgToServer(event){
 }
 
 //イメージの受け取り
-socket.on('userimage', function(name, data){
-    console.log('@userimage ' + name + " " + data);
+socket.on('userimage', function(file){
+    console.log('@userimage ' + file.name);
     var child = document.createElement('img');
-    child.src = data;
+    child.src = file.filedata;
     child.alt = 'img';
     child.width = 100;
     child.height = 100;

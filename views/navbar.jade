@@ -1,8 +1,19 @@
 div.navber.navbar-inverse.navbar-fixed-top
 	div.navbar-inner
 		div.container
-			ul.nav
-				li(style='float:left')
-					a(href="/login") login
-				li(style='float:left')
+			if user
+				ul.nav
+					li(style='float:left')
+						include logout.jade
+					li(style='float:left')
+						span.navbar-text Hello #{user.name}!
+					li(style='float:left')
+						a(href='/chat') chat
+					li(style='float:left')
+						a(href='/friend') friend
+					form.navbar-search.pull-right(method='post',action='/searchfriend')
+						input.search-query(type="text",placeholder="Search your friend",name='search')
+						input(type='submit')
+			else
+				p.navbar-text please login or 
 					a(href="/signup") signup

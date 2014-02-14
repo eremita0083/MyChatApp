@@ -1,10 +1,12 @@
 // モジュール呼び出し
 var express = require('express');
-var routes = require('./routes/chat');
-var auth = require('./routes/auth');
 var http = require('http');
 var path = require('path');
+//ルート
 var socketServer = require('./routes/socketserver.js');
+var routes = require('./routes/chat');
+var auth = require('./routes/auth');
+var friend = require('./routes/friend');
 
 var app = express();
 
@@ -40,6 +42,9 @@ if ('development' == app.get('env')) {
 //つまり第一引数をたたいたら、第二引数の処理が行われるということ。
 app.get('/login', auth.login);
 app.get('/signup',auth.signup);
+app.get('/friend', friend.friend);
+app.post('/searchfriend', friend.searchfriend);
+
 app.post('/signupnow',auth.signupnow);
 app.post('/test',auth.test);
 app.get('/chat',  routes.chat);
@@ -72,9 +77,9 @@ socketServer.connectionIo(server);
 // redirect時はsessionに値を持たせ、遷移先でsessionから消す。
 
 //　済 TODO　ログイン判定の処理
-//　TODO バックボタンから遷移したらチャット機能を使えないようにする。
-// TODO済 登録ページの作成。ｄｂ見るのはログイン画面で。
-// TODO　友達、ルーム。発言をユーザー情報を保持しておく。リアルタイムでログイン状態が見れる。
+//　TODO バックボタンから遷移したらチャット機能を使えないようにする。 難しい
+// TODO済 登録ページの作成。ｄｂ見るのはログイン画面で。　
+// TODO　友達、ルーム。発言をユーザー情報を保持しておく。リアルタイムでログイン状態が見れる。　次
 // csrf csrf対策をしていないwebサイトにアクセスした人を攻撃用のページに遷移させる
 
 // https://gist.github.com/kkurahar/555188 connectmongo でsession

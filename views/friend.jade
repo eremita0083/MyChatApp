@@ -1,0 +1,8 @@
+extends layout
+
+block content
+	p friend
+	if user.friend
+		span #{user.friend}
+	else
+		span none

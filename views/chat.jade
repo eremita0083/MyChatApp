@@ -1,7 +1,6 @@
 extends layout
 
 block content
-	include logout.jade
 	script(src="/javascripts/client.js")
 	h1= title
 	div#inputForm
@@ -13,7 +12,8 @@ block content
 			br
 			input(type="file", name="fileSelector", id='fileSelector')
 			input(type="button", value="img file sending", onclick="sendImgToServer()")
-		p#userName #{user.name}
+		p#aaaa #{user.name}
 			span さん、こんにちは 
 	div#dataArea(style="height: 500px; overflow: scroll;")
-	
+//- 15行目の p#aaaaのuser.name(req.session.user.name)がgetEleByIdで取れない。
+//-　pタグの中身としては、画面に表示されている。
