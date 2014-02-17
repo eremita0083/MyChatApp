@@ -1,56 +1,49 @@
 exports.connectionIo = function(server){
+    var auth = require('./auth.js');
     var chatModel = require('../db/mydb.js');
     var io = require('socket.io').listen(server);
 
     io.sockets.on('connection', function(socket) {
         console.log("connection");
 
-        // メッセージを受けたときの処理
-        // message:text, date:now.getTime(), name:/* name */
+        // メッセージを受けたときの処理dbに保存。
+        // 受：message:text, date:now.getTime(), name:/name 
         socket.on('message', function(data) {
             console.log("message");
-            //dbに保存
-            chatModel.setContents(data.name,data.message,{});
-            // つながっているクライアント全員に送信
+            chatModel.setContents(data.name,data.message,data.date);
             io.sockets.emit('message',{eventName:'message' ,message:data.message, name:data.name});
         });
 
-        // クライアントが参加、切断したときの処理
-        // on(event名,function(){})
-        // .emit,.onは対。event名を一致させないといけない。
-        socket.on('ready', function(data){
-            console.log('ready')
-            // socket.broadcast.emit("event名","value");　これで自分以外の全員にメッセージを送ることができる。
+        // クライアントが参加したときの処理
+        socket.on('ready', function(){
+            userName = auth.getUserName();
+            console.log('ready');
             var docs = chatModel.getAllContents(function(docs){
                 console.log('@ready');
                 for (var i = 0; i<docs.length ; ++i) {
-                //incexOfの戻り値はその文字列が見つかった場所の数値が返る。見つからなかった-1が返る。
-                //io.sockets.socket(socket.idで特定の人へメッセージを送ることができる)
                     if(docs[i].messageText.indexOf('@image:') >= 0){
                         io.sockets.socket(socket.id).emit('userimage', {filename:docs[i].name , filedata:docs[i].img});	
                     }else{
                         io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, name:docs[i].name});
                     }
                 }
-                io.sockets.emit('message',{eventName:'ready' ,name:data, message:''});
+                io.sockets.emit('message',{eventName:'ready', name:userName, message:''});
             });
         });
 
-        //退出時、ログアウト時の処理。TODO dataからデータが取り出せない。
+        //ログアウト時の処理。
         socket.on('disconnect', function(data){
             console.log('disconnect');
-            socket.broadcast.emit('message',{eventName:'disconnect', name:data, message:''});
+            socket.broadcast.emit('message',{eventName:'disconnect', name:data.name, message:''});
+            auth.logout();
         });
 
         //画像をアップロードする
-        /*data.file = event.target.result;
-        data.name = file.name;
-        data.type = type;
-        data.size = file.size;*/
+/*受：data.file = event.target.result;　data.name = file.name;data.type = type;　data.size = file.size;*/
         socket.on('upload', function(data){
             console.log('upload' + data.name + ' ' + data.size);
             if(data.size <= 3000000 && (data.type.indexOf('image/png') >= 0 || data.type.indexOf('image/jpeg') >= 0)){
-                io.sockets.emit('userimage', data.name, data.file);
+                io.sockets.emit('userimage', {name:data.name, filedata:data.file});
                 chatModel.setContents(socket.id, '@image:' + data.name ,data.file);
             }else{
                 io.sockets.socket(socket.id).emit('uploaderror','画像サイズまたは形式が適切ではありません。');

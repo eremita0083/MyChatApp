@@ -6,14 +6,12 @@ block content
 	div#inputForm
 		form(name="sampleForm")
 			//- jadeのheadでscript srcでjsを読み込むことで、ここで関連付けたidが使えるようになる。
-			input(type="text", name="textfield", id="text1")
-			input(type="button", value="書き込み", onclick="sendTextToServer()", id='writeBtn')
-			input(type="button", value="履歴削除", onclick="removeAllHistory()", id='removeBtn')
+			input#text1(type="text", name="textfield")
+			input#writeBtn(type="button", value="書き込み", onclick="sendTextToServer()")
+			input#removeBtn(type="button", value="履歴削除", onclick="removeAllHistory()")
 			br
 			input(type="file", name="fileSelector", id='fileSelector')
-			input(type="button", value="img file sending", onclick="sendImgToServer()")
-		p#aaaa #{user.name}
-			span さん、こんにちは 
+			input(type="button", value='img send', onclick="sendImgToServer()")
+		span#userName #{user.name}
+		span さん、こんにちは 
 	div#dataArea(style="height: 500px; overflow: scroll;")
-//- 15行目の p#aaaaのuser.name(req.session.user.name)がgetEleByIdで取れない。
-//-　pタグの中身としては、画面に表示されている。
