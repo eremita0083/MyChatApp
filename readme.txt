@@ -71,6 +71,28 @@ app.js
                 input(type='password', name='user[pwd]')
             input(type='submit')
 
+mydb.js
+	ひとつのｄｂインスタンスに複数のコネクトを行う場合は、二つ目以降のコネクトはconect()ではなくcreateConnection()を使う。
+	//chat.saveで保存、引数はエラー時の処理の関数
+        //sortは-1だと最新のものから表示される。1だと古いものから表示される
+	var dbData = Chat.find({}, 'date messageText img', {sort:{date:-1}, limit:1}, function(err, docs) {});
+	//mangooseはmongodbを使うために必要なモジュール。app.jsをserverで走らす際は予めmongoを起動させておく必要がある。
+	//デフォルトの待ちうけはlocalの27017。 require > schema > model の順に定義。mongoose.connect('mongodb://localhost:27017/~~');
+	・sessionの操作
+	request.session.name = 'value'; // 値の設定
+	delete request.session.name; // 値の破棄
+	request.session.destroy(); // セッションの破棄	
+	・sessionのスキーマを作成
+	var sessionSchema = mongoose.Schema({
+		name:String,
+		socketid:String,
+		date:Date
+	});
+	mongoose.model('session',sessionSchema);
+	mongoose.createConnection('mongodb://localhost:27017/session');　//二つ目以降のコネクション。最初ならconectでよい。
+	var Session = mongoose.model('session');*/
+
+
 jade関連
 	
 
@@ -97,6 +119,8 @@ jade関連
 　　　TODO バックボタンから遷移したらチャット機能を使えないようにする。 難しい
 　済　TODO 登録ページの作成。ｄｂ見るのはログイン画面で。　
 　// クロスサイトリクエストフォージェリ csrf対策をしていないwebサイトにアクセスした人を攻撃用のページに遷移させる
+  済　TODO socketserverでdisconnectが渡されたdataを上手くパースしてくれない。
+      →io.set('blacklist': []);でブラックリストを初期化できる。
 
 
 参考になるweb

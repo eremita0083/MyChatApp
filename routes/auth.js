@@ -1,6 +1,5 @@
 var db = require('../db/mydb.js');
 var NS ={};
-
 //loginに飛んできたときの処理がsaveStatusに入っている。
 exports.login = function(req, res, next) {
 	var saveStatus;
@@ -37,17 +36,13 @@ exports.test = function(req, res, next) {
 			//ユーザ名とパスワードとが該当する人がいた場合
 			req.session.user = {
 				name: user.name,
-				pwd: user.pwd,
+				pwd: user.pwd
 			};
-			NS.username = user.name;
+			res.locals.user = req.session.user;
 			res.redirect('/chat');
 		}	
 	});
 };
-
-exports.getUserName = function(){
-	return NS.username;
-}
 
 exports.signup = function(req, res, next) {
 	res.render('signup');
@@ -60,14 +55,18 @@ exports.signupnow = function(req, res, next) {
 		if(errStr === 'err'){
 			console.log('でーた保存失敗');
 			saveStatus = 'data could not be saved';
+			req.session.saveStatus = saveStatus;
+			res.redirect('/signup');
 		}else if(errStr === 'dup'){
 			console.log('でーた保存失敗');
 			saveStatus = 'id or password is dupricated';
+			req.session.saveStatus = saveStatus;
+			res.redirect('/signup');
 		}else{
 			console.log('でーた保存成功');
 			saveStatus = 'data is saved';
+			req.session.saveStatus = saveStatus;
+			res.redirect('/login');
 		}
-		req.session.saveStatus = saveStatus;
-		res.redirect('/login');
 	});
 };

@@ -1,13 +1,9 @@
 var socket = io.connect('http://localhost:3000');
 var NS = {};
-//TODO ここにreq.session.user.nameを入れる
-
 /*
 var : userName
 function: receivedAction,
 */
-
-//　ほかの人が退出しているのに、自分が退出した出力になる。case readyの部分で上書きされている。
 //　メッセージ受け取り、参加、退出のルーティング処理とdataareaへの追加処理
 NS.receivedAction = function(eventName,message,name){
     var child = document.createElement('p');
@@ -36,7 +32,7 @@ function sendTextToServer(){
     var text = document.getElementById('text1').value;
     var now = new Date();
     console.log(now.getTime());
-    socket.emit('message',{ message:text, date:now.getTime(), name:NS.userName});
+    socket.emit('message',{ message:text, date:now.getTime()});
     console.log('送信したデータ：' + text);
 }
 
@@ -53,7 +49,6 @@ function sendImgToServer(event){
         data.filename = file.name;
         data.type = type;
         data.size = file.size;
-        data.name = NS.userName;
         socket.emit('upload', data);
         console.log('size'+ data.size + ' type' + data.type);
     }
@@ -83,7 +78,7 @@ function removeAllHistory(){
 //退出時の処理
 //TODO nameを拾いきれない　window.onbeforeunloadが呼ばれた時点で、sessionが切れる様子。
 var onLogout = function(){
-    socket.emit('disconnect',{name:NS.userName});
+    socket.emit('disconnect');
 }
 
 //イメージの受け取り
