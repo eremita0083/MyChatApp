@@ -1,5 +1,8 @@
 var db = require('../db/mydb.js');
-var NS ={};
+var loginName;
+exports.getLoginName = function(){
+	return loginName;
+}
 //loginに飛んできたときの処理がsaveStatusに入っている。
 exports.login = function(req, res, next) {
 	var saveStatus;
@@ -38,7 +41,7 @@ exports.test = function(req, res, next) {
 				name: user.name,
 				pwd: user.pwd
 			};
-			res.locals.user = req.session.user;
+			loginName = user.name;
 			res.redirect('/chat');
 		}	
 	});

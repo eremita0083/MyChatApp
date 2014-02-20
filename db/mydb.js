@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var chatTextSchema = mongoose.Schema({
 	name:String,
 	messageText:String,
-	date:Date,
+	date:{ type: Date, default: new Date().getTime()},
 	img:String
 });
 mongoose.model('chat',chatTextSchema);
@@ -13,13 +13,23 @@ var Chat = mongoose.model('chat');
 
 //userのスキーマを作成
 var userSchema = mongoose.Schema({
-	name:String,
-	password:String,
-	date:Date
+	name:{ type: String, required: true },
+	password:{ type: String, required: true },
+	date:{ type: Date, default: new Date().getTime() }
 });
 mongoose.model('user',userSchema);
 mongoose.createConnection('mongodb://localhost:27017/user');
 var User = mongoose.model('user');
+
+//login情報のスキーマを作成
+var loginSchema = mongoose.Schema({
+	name:{ type: String, required: false },
+	id:{ type: String, required: false },
+	date:{ type: Date, default: new Date().getTime() }
+});
+mongoose.model('login', loginSchema);
+mongoose.createConnection('mongodb://localhost:27017/login');
+var Login = mongoose.model('login');
 
 //contentsを保存
 exports.setContents = function(name, messageText, data){
@@ -41,7 +51,7 @@ exports.setContents = function(name, messageText, data){
 var addDataToChatmodel = function(chat, name, messageText, data){
   	chat.name = name;
     chat.messageText = messageText;
-	chat.date = new Date().getTime();
+	/*chat.date = new Date().getTime();*/
 	chat.img = data;
 }
 
@@ -116,6 +126,42 @@ exports.setUserData = function(userName,userPass,confirmError){
 		    	}
 		    	confirmError(errStr);
 			});
+		}
+	});
+}
+
+
+exports.setLoginData = function(username, id){
+	var log = new Login;
+	log.name = username;
+	log.id = id;
+	log.save(function(err){
+		if(err){
+			console.log(err);
+		}else{
+			console.log('@@保存成功setLoginData user:' + username + ' loginid:' + id );
+		}
+	});
+}
+
+exports.getLoginData = function(id,react){
+	console.log('@@getlogin socketid: '+ id);
+	Login.findOne({id:id},'name id date', function(err,docs) {
+		if(err){
+			console.log(err);
+		}else{
+			console.log('@@取り出し成功getLoginData userName:' + docs.name);
+			react(docs);
+		}
+	});
+}
+
+exports.removeLogin = function(username,sid){
+	Login.remove({name: username, id:sid}, function(err){
+		if(err){
+			console.log(err);
+		}else{
+			console.log('@@remove login follow data. user:' + username + ' socketId:'+sid);
 		}
 	});
 }

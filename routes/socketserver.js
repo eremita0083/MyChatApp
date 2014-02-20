@@ -11,16 +11,19 @@ exports.connectionIo = function(server){
         // 受：message:text, date:now.getTime(), name:/name 
         socket.on('message', function(data) {
             console.log("message");
-            chatModel.setContents(/*data.name FIX*/'',data.message,data.date);
-            io.sockets.emit('message',{eventName:'message' ,message:data.message, name:/*data.name　FIX*/''});
+            chatModel.getLoginData(socket.id,function(userData){
+                chatModel.setContents(userData.name, data.message, data.date);
+                io.sockets.emit('message',{eventName:'message' ,message:data.message, name: userData.name});
+            });
         });
 
         // クライアントが参加したときの処理
         socket.on('ready', function(){
-            userName = /*req.session.user.name*/'fixme'; //FIX sessionに保存している値から持ってくるか、別のdbのusercollectionから持ってくるか。
-            console.log('ready');
+            var userName = auth.getLoginName();  
+            chatModel.setLoginData(userName,socket.id);
+            console.log('ready1');
             var docs = chatModel.getAllContents(function(docs){
-                console.log('@ready');
+                console.log('ready2');
                 for (var i = 0; i<docs.length ; ++i) {
                     if(docs[i].messageText.indexOf('@image:') >= 0){
                         io.sockets.socket(socket.id).emit('userimage', {filename:docs[i].name , filedata:docs[i].img});	
@@ -28,14 +31,19 @@ exports.connectionIo = function(server){
                         io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, name:docs[i].name});
                     }
                 }
-                io.sockets.emit('message',{eventName:'ready', name:userName, message:''});
+                chatModel.getLoginData(socket.id, function(data){
+                    io.sockets.emit('message',{eventName:'ready', name:data.name, message:''}); 
+                });
             });
         });
 
         //ログアウト時の処理。
         socket.on('disconnect', function(){
             console.log('disconnect');
-            socket.broadcast.emit('message',{eventName:'disconnect', name:/*req.session.user.name FIX*/'', message:''});
+            chatModel.getLoginData(socket.id,function(userData){
+                socket.broadcast.emit('message',{eventName:'disconnect', name:userData.name, message:''});
+                chatModel.removeLogin(userData.name,userData.id);
+            });
         });
 
         //画像をアップロードする
@@ -43,8 +51,10 @@ exports.connectionIo = function(server){
         socket.on('upload', function(data){
             console.log('upload' + data.filename + ' ' + data.size);
             if(data.size <= 3000000 && (data.type.indexOf('image/png') >= 0 || data.type.indexOf('image/jpeg') >= 0)){
-                io.sockets.emit('userimage', {name:/*data.name*/'', filedata:data.file});
-                chatModel.setContents(socket.id, '@image:' + data.filename ,data.file);
+                chatModel.getLoginData(socket.id, function(userData){
+                    io.sockets.emit('userimage', {name:userData.name, filedata:data.file});
+                    chatModel.setContents(socket.id, '@image:' + data.filename ,data.file);
+                });
             }else{
                 io.sockets.socket(socket.id).emit('uploaderror','画像サイズまたは形式が適切ではありません。');
             }
@@ -52,6 +62,6 @@ exports.connectionIo = function(server){
     });
 }
 
-//socketidとuseridをひもつけて、セッションdbに保存（）
+//TODO済 socketidとuseridをひもつけて、セッションdbに保存（）
 //退席時はidをdeleteしたら良い。ログアウトと退席は別の概念。
 //TODO　ABCDフレンドがいたとして、(socketsに対して)ルームに対しての送信(個別のemitを複数送るのはなし)。ルームに関連したsocketid登録者全員に送る感じ

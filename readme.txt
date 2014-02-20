@@ -38,8 +38,22 @@ auth.js
 app.js
 	//session は　cookieParser→session→app.routerの順番で記述。以下のような感じ
  	app.use(express.cookieParser('secretkey')); // セッション管理に必須。
-	app.use(express.session());// セッション管理に必須。
+	app.use(express.session());// セッション管理に必須。defaultのmemory storeを利用するならこの設定で。
 	app.use(app.router);
+
+	connect-mongoなどを利用するなら、package.jsonを変更後npm installでconnect-mongoをDLし、
+	以下のように記述。secretとdbは任意の名前でいいが、わかりやすい名前がよい。
+	cookieはhttpOnly:falseとmaxAge(タイムアウトまでの時間)を指定する。
+	app.use(express.session({
+    		secret: 'secret-key',
+    		store: new mongoStore({
+     		db:'session'     	
+    		}),
+    		cookie: {
+        		httpOnly: false,
+        		maxAge: new Date(Date.now() + 60 * 60 * 1000)
+    		}
+	}));
 
         // development only　開発終了したら以下の記述は削除してもよい
 	if ('development' == app.get('env')) {
@@ -91,6 +105,18 @@ mydb.js
 	mongoose.model('session',sessionSchema);
 	mongoose.createConnection('mongodb://localhost:27017/session');　//二つ目以降のコネクション。最初ならconectでよい。
 	var Session = mongoose.model('session');*/
+        // update時はこんな感じ。upsertはt or fで指定、tならそのuserdataがなかった場合に新規作成する。multiはtrueなら該当データを全更新する。
+	User.update({ name: username }, { $set: {socketId: id} },{ upsert: false, multi: false }, function(err){
+		if(err){
+			console.log(err);
+		}else{
+			console.log('user:' + username + ' socketId:'+id);
+		}
+        }
+	//remove時はこんな感じ。
+	db.user.remove( { 'name.first' : /^G/ } ) //正規表現。name.firstがGで始まる人全員のdocumentを削除
+	db.user.remove( { age: { $gt: 20 } } ) // $gtはgreater than（~より大きい）, $ltはlesser than（より小さい）のデータを全削除
+	
 
 
 jade関連
@@ -128,3 +154,5 @@ jade関連
 // http://taro-tnk.hatenablog.com/entry/2012/12/27/130559  bootstrap
 // http://kikuchy.hatenablog.com/entry/2013/07/03/042221  express + passport
 	
+express開発の本
+Advanced Express Web Application Development 洋書
