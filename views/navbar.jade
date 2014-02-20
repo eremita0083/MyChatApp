@@ -4,13 +4,15 @@ div.navber.navbar-inverse.navbar-fixed-top
 			if user
 				ul.nav
 					li(style='float:left')
-						include logout.jade
-					li(style='float:left')
 						span.navbar-text Hello #{user.name}!
+					li(style='float:left')
+						include logout.jade
 					li(style='float:left')
 						a(href='/chat') chat
 					li(style='float:left')
 						a(href='/friend') friend
+					li(style='float:left')
+						a(href='/roomlobby') roomlobby
 					form.navbar-search.pull-right(method='post',action='/searchfriend')
 						input.search-query(type="text",placeholder="Search your friend",name='search')
 						input(type='submit')

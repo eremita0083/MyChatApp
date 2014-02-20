@@ -3,10 +3,12 @@ html(lang='jp')
 	head
 		title= title
 		meta(charset="utf-8")
-		link(rel='stylesheet', href='/stylesheets/style.css')
+		script(src="/javascripts/jquery-1.10.2.min.js")
 		link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+		link(rel='stylesheet', href='/stylesheets/style.css')
 		link(rel='stylesheet', href='/stylesheets/login.css')
 		link(rel='stylesheet', href='/stylesheets/signup.css')
+		link(rel='stylesheet', href='/stylesheets/navbar.css')
 		//- ここでscriptとjadeを関連付ける。先にモジュールから読み込む。でないとそのモジュールを使うclientjsなどが読み込めない。
 		script(src="/javascripts/jquery-1.10.2.min.js")
 		script(src="/socket.io/socket.io.js")

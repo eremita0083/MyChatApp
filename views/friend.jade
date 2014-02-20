@@ -3,6 +3,7 @@ extends layout
 block content
 	p friend
 	if user.friend
-		span #{user.friend}
+		span 「#{user.friend}」さんの検索結果です
+		div#friendDataArea(style="height: 200px; overflow: scroll;")
 	else
 		span none

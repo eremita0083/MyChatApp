@@ -18,8 +18,8 @@ exports.connectionIo = function(server){
         });
 
         // クライアントが参加したときの処理
-        socket.on('ready', function(){
-            var userName = auth.getLoginName();  
+        socket.on('ready', function(data){
+            var userName = data.user; // ここが問題。
             chatModel.setLoginData(userName,socket.id);
             console.log('ready1');
             var docs = chatModel.getAllContents(function(docs){
@@ -65,3 +65,4 @@ exports.connectionIo = function(server){
 //TODO済 socketidとuseridをひもつけて、セッションdbに保存（）
 //退席時はidをdeleteしたら良い。ログアウトと退席は別の概念。
 //TODO　ABCDフレンドがいたとして、(socketsに対して)ルームに対しての送信(個別のemitを複数送るのはなし)。ルームに関連したsocketid登録者全員に送る感じ
+// io.sockets.in('room').emit('event_name', data)　でroomに所属する全員に送ることができる。

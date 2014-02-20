@@ -150,7 +150,6 @@ exports.getLoginData = function(id,react){
 		if(err){
 			console.log(err);
 		}else{
-			console.log('@@取り出し成功getLoginData userName:' + docs.name);
 			react(docs);
 		}
 	});

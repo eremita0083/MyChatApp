@@ -1,5 +1,13 @@
 var socket = io.connect('http://localhost:3000');
 var NS = {};
+
+$(function(){
+    NS.userName = $('#userName').text();
+    //UserIdを画面に表示し、参加したことを知らせる
+    socket.emit('ready', {
+        user: NS.userName
+    });
+});
 /*
 var : userName
 function: receivedAction,
@@ -17,9 +25,6 @@ NS.receivedAction = function(eventName,message,name){
         child.style.color = 'blue';
         break;
         case 'ready':
-        if(!NS.userName){
-            NS.userName = name;
-        }
         child.innerHTML = name + 'が参加しました';
         child.style.color = 'red';
         break;
@@ -66,9 +71,6 @@ socket.on('message', function (data) {
     console.log('name:' + name);
     NS.receivedAction(eName,mes,name);
 });
-
-//UserIdを画面に表示し、参加したことを知らせる
-socket.emit('ready');
 
 //ボタンを押すことでデータベースの履歴を削除する TODO 未実装
 function removeAllHistory(){

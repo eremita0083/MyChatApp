@@ -1,8 +1,5 @@
 var db = require('../db/mydb.js');
-var loginName;
-exports.getLoginName = function(){
-	return loginName;
-}
+
 //loginに飛んできたときの処理がsaveStatusに入っている。
 exports.login = function(req, res, next) {
 	var saveStatus;
@@ -41,7 +38,6 @@ exports.test = function(req, res, next) {
 				name: user.name,
 				pwd: user.pwd
 			};
-			loginName = user.name;
 			res.redirect('/chat');
 		}	
 	});
@@ -73,3 +69,4 @@ exports.signupnow = function(req, res, next) {
 		}
 	});
 };
+//secret window 

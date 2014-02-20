@@ -47,6 +47,7 @@ app.use(function(req, res, next){
 app.get('/login', auth.login);
 app.get('/signup',auth.signup);
 app.get('/friend', friend.friend);
+app.get('/roomlobby', routes.roomlobby);
 app.post('/searchfriend', friend.searchfriend);
 app.post('/signupnow',auth.signupnow);
 app.post('/test',auth.test);
