@@ -21,7 +21,7 @@ mongoose.model('user',userSchema);
 mongoose.createConnection('mongodb://localhost:27017/user');
 var User = mongoose.model('user');
 
-//login情報のスキーマを作成
+//chat login情報のスキーマを作成
 var loginSchema = mongoose.Schema({
 	name:{ type: String, required: false },
 	id:{ type: String, required: false },
@@ -30,6 +30,29 @@ var loginSchema = mongoose.Schema({
 mongoose.model('login', loginSchema);
 mongoose.createConnection('mongodb://localhost:27017/login');
 var Login = mongoose.model('login');
+
+//room ルーム情報の保存
+var roomSchema = mongoose.Schema({
+	name:{type:String, required: true},
+	password:{type:String, required: true},
+	master:{type:String, required: true},
+	date:{ type: Date, default: new Date().getTime()}
+});
+mongoose.model('room', roomSchema);
+mongoose.createConnection('mongodb://localhost:27017/room');
+var Room = mongoose.model('room');
+
+//roomにおけるチャット履歴の保存
+var roomHistorySchema = mongoose.Schema({
+	roomname:{type:String, required: true},
+	password:{type:String, required: true},
+	messageText:{type:String, required: true},
+	publisher:{type:String, required: true},
+	date:{ type: Date, default: new Date().getTime()}
+});
+mongoose.model('roomhistory', roomHistorySchema);
+mongoose.createConnection('mongodb://localhost:27017/roomhistory');
+var RoomHistory = mongoose.model('roomhistory');
 
 //contentsを保存
 exports.setContents = function(name, messageText, data){
@@ -130,7 +153,7 @@ exports.setUserData = function(userName,userPass,confirmError){
 	});
 }
 
-
+/*以下login データ*/
 exports.setLoginData = function(username, id){
 	var log = new Login;
 	log.name = username;
@@ -155,12 +178,84 @@ exports.getLoginData = function(id,react){
 	});
 }
 
-exports.removeLogin = function(username,sid){
-	Login.remove({name: username, id:sid}, function(err){
+exports.removeLogin = function(sid){
+	Login.remove({id:sid}, function(err){
 		if(err){
 			console.log(err);
 		}else{
-			console.log('@@remove login follow data. user:' + username + ' socketId:'+sid);
+			console.log('@@remove login follow data. socketId:'+sid);
+		}
+	});
+}
+
+/*　以下 room*/
+exports.createRoom = function(data){
+	var room = new Room;
+	room.name = data.name;
+	room.password = data.password;
+	room.master = data.master;
+	room.save(function(err){
+		if(err){
+			console.log(err);
+		}else{
+			console.log('@room作成　成功');
+		}
+	});
+}
+exports.getRoom = function(roomName,roomMaster){
+	Room.find({name:roomName, master:roomMaster},'name password master date', {sort:{date:-1}, limit:20}, function(err,docs){
+		if(err){
+			console.log(err);
+		}else{
+			return docs;
+		}
+	});
+}
+exports.removeRoom = function(roomName, roomMaster){
+	Room.remove({name:roomName, master:roomMaster}, function(err){
+		if(err){
+			console.log(err);
+		}else{
+			console.log('@room削除: ' + roomName);
+		}
+	});
+}
+
+/*　以下 roomの会話履歴
+roomname:{type:String, required: true},
+password:{type:String, required: true},
+messageText:{type:String, required: true},
+publisher:{type:String, required: true},
+date:{ type: Date, default: new Date().getTime()}*/
+exports.saveRoomHistory = function(data){
+	var roomhistory = new RoomHistory;
+	roomhistory.roomname = data.roomname;
+	roomhistory.messageText = data.messageText;
+	roomhistory.publisher = data.publisher;
+	roomhistory.save(function(err){
+		if(err){
+			console.log(err);
+			console.log('@@roomhistory保存　失敗');
+		}else{
+			console.log('@roomhistory保存　成功');
+		}
+	});
+}
+exports.getRoomHistory = function(data){
+	RoomHistory.find({roomname:data.roomname, password:data.password },'roomname password messageText publisher date', {sort:{date:-1}, limit:20}, function(err,docs){
+		if(err){
+			console.log(err);
+		}else{
+			return docs;
+		}
+	});
+}
+exports.removeRoomHistory = function(data){
+	Room.remove({roomname:data.roomname, password:data.password}, function(err){
+		if(err){
+			console.log(err);
+		}else{
+			console.log('@room削除: ' + roomName);
 		}
 	});
 }

@@ -82,6 +82,9 @@ function removeAllHistory(){
 var onLogout = function(){
     socket.emit('disconnect');
 }
+window.onbeforeunload = function(){
+    socket.emit('disconnect');
+}
 
 //イメージの受け取り
 socket.on('userimage', function(file){

@@ -1,25 +1,39 @@
 exports.connectionIo = function(server){
-    var auth = require('./auth.js');
     var chatModel = require('../db/mydb.js');
     var io = require('socket.io').listen(server);
     io.set('blacklist',[]);
+    var sanitizer = require('validator');  //xss対策 .checkで入力値検証。.sanitizeで無害化。
+    console.log('@validatorは'+sanitizer);
 
     io.sockets.on('connection', function(socket) {
         console.log("connection");
-
         // メッセージを受けたときの処理、dbに保存。
         // 受：message:text, date:now.getTime(), name:/name 
         socket.on('message', function(data) {
             console.log("message");
             chatModel.getLoginData(socket.id,function(userData){
-                chatModel.setContents(userData.name, data.message, data.date);
-                io.sockets.emit('message',{eventName:'message' ,message:data.message, name: userData.name});
+                var msg;
+                try{
+                    //sanitizerはtry catch必須　.escapeでxss対策。
+                    msg = sanitizer.escape(data.message);
+                }catch(e){
+                    console.log(e.message);
+                    io.sockets.socket(socket.id).emit('message',{eventName:'message' ,message:'メッセージが処理されませんでした', name:'Admin'});
+                    return;
+                }
+                //メッセージが適切なものなら、保存し正しいメッセージを送る。そうでなければ、本人にのみwarning文を送る
+                if(msg!=null){
+                    chatModel.setContents(userData.name, msg, data.date);
+                    io.sockets.emit('message',{eventName:'message' ,message:msg, name: userData.name});
+                }else{
+                    io.sockets.socket(socket.id).emit('message',{eventName:'message' ,message:'不適切なメッセージが送信されました', name:'Admin'});
+                }
             });
         });
 
         // クライアントが参加したときの処理
         socket.on('ready', function(data){
-            var userName = data.user; // ここが問題。
+            var userName = data.user;
             chatModel.setLoginData(userName,socket.id);
             console.log('ready1');
             var docs = chatModel.getAllContents(function(docs){
@@ -41,8 +55,8 @@ exports.connectionIo = function(server){
         socket.on('disconnect', function(){
             console.log('disconnect');
             chatModel.getLoginData(socket.id,function(userData){
-                socket.broadcast.emit('message',{eventName:'disconnect', name:userData.name, message:''});
-                chatModel.removeLogin(userData.name,userData.id);
+                // ここでエラーが出てる　 socket.broadcast.emit('message',{eventName:'disconnect', name:userData.name, message:''});
+                chatModel.removeLogin(socket.id);
             });
         });
 

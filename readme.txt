@@ -117,6 +117,7 @@ mydb.js
 	db.user.remove( { 'name.first' : /^G/ } ) //正規表現。name.firstがGで始まる人全員のdocumentを削除
 	db.user.remove( { age: { $gt: 20 } } ) // $gtはgreater than（~より大きい）, $ltはlesser than（より小さい）のデータを全削除
 	
+	//基本的にdatabaseとserver間の情報の渡し方は、map objectで渡すようにする。
 
 
 jade関連
@@ -147,11 +148,25 @@ jade関連
 　// クロスサイトリクエストフォージェリ csrf対策をしていないwebサイトにアクセスした人を攻撃用のページに遷移させる
   済　TODO socketserverでdisconnectが渡されたdataを上手くパースしてくれない。
       →io.set('blacklist': []);でブラックリストを初期化できる。
+//インターネットで確認したmoduleの使い方は、version upなどで異なっている可能性も多い。
+　　したがって、実際に使うときは必ず公式documentを確認するようにする。
 
+・セキュリティ対策
+　１、xss，　npm install validator
+　　　　var sanitize = require('validator');
+    →xss対策 .check()で入力値検証。.sanitizeで無害化。
+    　ユーザが入力した無害化したい変数msgに
+    　msg = sanitize(msg).entityEncode();などのようにするだけ。
+     .ifNull(replace): //nullならreplaceに置き換える
+     .toInt() //intに
+     .toFloat() // floatに
+     　sanitizer.escape(data.message); //これで簡単に無害化
+　２、Ctrl+Shift+Nでシークレットウィンドウモード（クロム）
 
 参考になるweb
 // https://gist.github.com/kkurahar/555188 connectmongo でsession
 // http://taro-tnk.hatenablog.com/entry/2012/12/27/130559  bootstrap
+// http://www.find-job.net/startup/twitter-bootstrap-3
 // http://kikuchy.hatenablog.com/entry/2013/07/03/042221  express + passport
 	
 express開発の本
