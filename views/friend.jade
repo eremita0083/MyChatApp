@@ -2,25 +2,3 @@ extends layout
 
 block content
 	p friend
-	table(border=0, width=250, align=center,cols=5)
-		tr
-			th
-				span 1
-			th
-				span 2
-			th
-				span 3
-			th
-				span 4
-		tr
-			td(rowspan=2)
-			td(colspan=3)
-	div.
-	if user.friend
-		span 「#{user.friend}」さんの検索結果です
-	else
-		span welcome to lobby
-
-//-　とりあえずTableで作ることにする。独学でbootstrapをやる
-//- table の子要素　<tr>tableの行、<th>tableヘッダー、<td>tabledata
-//- tdタグにcolspan=2　で二列文のwidthを使う、rowspan=4で4行文のheigthを使うということ

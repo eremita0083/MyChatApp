@@ -3,7 +3,7 @@ exports.connectionIo = function(server){
     var io = require('socket.io').listen(server);
     io.set('blacklist',[]);
     var sanitizer = require('validator');  //xss対策 .checkで入力値検証。.sanitizeで無害化。
-    console.log('@validatorは'+sanitizer);
+    console.log('@validator'+sanitizer);
 
     io.sockets.on('connection', function(socket) {
         console.log("connection");
@@ -37,7 +37,6 @@ exports.connectionIo = function(server){
             chatModel.setLoginData(userName,socket.id);
             console.log('ready1');
             var docs = chatModel.getAllContents(function(docs){
-                console.log('ready2');
                 for (var i = 0; i<docs.length ; ++i) {
                     if(docs[i].messageText.indexOf('@image:') >= 0){
                         io.sockets.socket(socket.id).emit('userimage', {filename:docs[i].name , filedata:docs[i].img});	
@@ -45,8 +44,9 @@ exports.connectionIo = function(server){
                         io.sockets.socket(socket.id).emit('message', {eventName:'message' ,message:docs[i].messageText, name:docs[i].name});
                     }
                 }
-                chatModel.getLoginData(socket.id, function(data){
-                    io.sockets.emit('message',{eventName:'ready', name:data.name, message:''}); 
+                chatModel.getLoginData(socket.id, function(docs){
+                    console.log('@socketserver '+ data.user);
+                    io.sockets.emit('message',{eventName:'ready', name:data.user, message:''}); 
                 });
             });
         });

@@ -7,6 +7,7 @@ var mongoStore = require('connect-mongo')(express);
 var socketServer = require('./routes/socketserver.js');
 var routes = require('./routes/chat');
 var auth = require('./routes/auth');
+var room = require('./routes/room');
 var friend = require('./routes/friend');
 
 var app = express();
@@ -47,12 +48,14 @@ app.use(function(req, res, next){
 app.get('/login', auth.login);
 app.get('/signup',auth.signup);
 app.get('/friend', friend.friend);
-app.get('/roomlobby', routes.roomlobby);
+app.get('/roomlobby',room.roomlobby);
 app.post('/searchfriend', friend.searchfriend);
 app.post('/signupnow',auth.signupnow);
 app.post('/test',auth.test);
 app.get('/chat',  routes.chat);
 app.del('/logout', auth.logout);
+app.post('/testroom',room.testroom);
+app.get('/room',room.room);
 
 var server = http.createServer(app);
 server.listen(app.get('port'), function(){

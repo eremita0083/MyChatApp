@@ -1,0 +1,16 @@
+extends layout
+
+block content
+		script(src="/javascripts/client.js")
+		h1= title
+		div#roomInputForm
+			form(name="sampleForm")
+				//- jadeのheadでscript srcでjsを読み込むことで、ここで関連付けたidが使えるようになる。
+				input#roomtext(type="text")
+				input(type="button", value="書き込み", onclick="sendTextToRoomServer()")
+			span#roomName #{room.name}
+			span へようこそ
+			br
+			span#roomUserName #{room.master}
+			span さん、こんにちは
+		div#roomDataArea(style="height: 500px; overflow: scroll;")

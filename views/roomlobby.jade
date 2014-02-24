@@ -1,4 +1,45 @@
 extends layout
 
 block content
-	
+	div#body_friend(align='center')
+		if user.friend
+			span 「#{user.friend}」さんの検索結果です
+		else
+			span welcome to lobby
+		br
+		br
+		table#friendTable(border-width='2', border='#ccc')
+			tr
+				th.col1(colspan='2')
+					div.tableHead(align='center')
+						span room lobby
+				th.col2(colspan='1')
+					div.tableHead(align='center')
+						span friend list
+			tr
+				td.col1(colspan='2')
+					div#roomlobby(align='center')
+						form#roomlobbyForm(method='post', action ='/testroom', border='')
+							legend
+								p
+									input(type="radio", name="room[select]", value="create", checked="checked")
+									label(for="room[select]") create your room
+									br
+									input(type="radio", name="room[select]", value="enter")
+									label(for="room[select]") enter the room
+								p
+									label(for='room[name]') room name:
+									input(name='room[name]')
+								p
+									label(for='room[pwd]') room pass:
+									input(name='room[pwd]')
+								input(type='submit')
+				td.col2(colspan='1')
+					div#friendlist(align='center')
+						ul(style='none')
+							li a
+							li b
+							li c
+//-　とりあえずTableで作ることにする。独学でbootstrapをやる
+//- table の子要素　<tr>tableの行、<th>tableヘッダー、<td>tabledata
+//- tdタグにcolspan=2　で二列文のwidthを使う、rowspan=4で4行文のheigthを使うということ

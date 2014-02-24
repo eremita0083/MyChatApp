@@ -31,7 +31,7 @@ auth.js
 	var users = {'a':'a' , 'b':'b' , 'c':'c'};
 	var usersLength = 0;
 	for(var j in users){
-	   usersLength++;
+	   resultsLength +=1;
 	}
 	forEach文はbreakがデフォでは使えない仕様。
 
@@ -120,7 +120,11 @@ mydb.js
 	//基本的にdatabaseとserver間の情報の渡し方は、map objectで渡すようにする。
 
 
-jade関連
+jade,css関連
+	body のトップタグに　div(align='center')　を指定すると子要素を中央に配置できる
+	あるいは、cssでtopのdivタグにmargin:0 auto 0 auto;を指定する
+	y軸の中央なら、cssでhtmlタグに　display:table を指定し、
+	http://htdsn.com/blog/archives/css-center-position.html
 	
 
 
@@ -168,6 +172,34 @@ jade関連
 // http://taro-tnk.hatenablog.com/entry/2012/12/27/130559  bootstrap
 // http://www.find-job.net/startup/twitter-bootstrap-3
 // http://kikuchy.hatenablog.com/entry/2013/07/03/042221  express + passport
+// http://www.paperboy.co.jp/recruit/
+
 	
 express開発の本
 Advanced Express Web Application Development 洋書
+
+
+		table#friendTable(border-width='2', border='#ccc')
+			tr
+				th.col1(colspan='3')
+					div.tableHead(align='center')
+						span room lobby
+				th.col2(colspan='1')
+					div.tableHead(align='center')
+						span friend list
+			tr
+				td.col1(colspan='3',height='300px',margin='2')
+					div#roomlobby(align='center')
+				td.col2(colspan='1',height='300px',margin='2')
+					div#friendlist(align='center')
+
+			div.row
+				div.col-md-8.col-sm-2(align='center')
+					span room lobby
+				div.col-md-4.col-sm-2(align='center')
+					span friend list
+			div.row
+				div.col-md-8.col-sm-10(align='center')
+					span room lobby
+				div.col-md-4.col-sm-10(align='center')
+					span room lobby
