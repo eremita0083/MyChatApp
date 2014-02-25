@@ -31,7 +31,7 @@ auth.js
 	var users = {'a':'a' , 'b':'b' , 'c':'c'};
 	var usersLength = 0;
 	for(var j in users){
-	   resultsLength +=1;
+		resultsLength +=1;
 	}
 	forEach文はbreakがデフォでは使えない仕様。
 
@@ -173,6 +173,12 @@ jade,css関連
 // http://www.find-job.net/startup/twitter-bootstrap-3
 // http://kikuchy.hatenablog.com/entry/2013/07/03/042221  express + passport
 // http://www.paperboy.co.jp/recruit/
+http://dev.classmethod.jp/server-side/asyn/ module asyncについて
+
+配色
+https://kuler.adobe.com/create/color-wheel/　ツール
+http://www.slideshare.net/yumi-uniq-ishizaki/ss-13792781　slide
+http://commte.net/blog/archives/1911　配色まとめ
 
 	
 express開発の本

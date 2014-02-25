@@ -15,6 +15,7 @@ var Chat = mongoose.model('chat');
 var userSchema = mongoose.Schema({
 	name:{ type: String, required: true },
 	password:{ type: String, required: true },
+	friend:[User],
 	date:{ type: Date, default: new Date().getTime() }
 });
 mongoose.model('user',userSchema);
@@ -106,6 +107,18 @@ var getUserData = function (username, userpass, find){
 }
 exports.getUserData = getUserData;
 
+var getUserDataForFriendAPI = function (friendName, find){
+	User.find({name:friendName},'name password date',{sort:{date : 1}}, function(err, docs) {
+    	if(err){
+    		console.log('@失敗　DBから履歴読み出し失敗');
+    	}else{
+    		console.log('@成功　DBから履歴読み出し成功');
+    		find(docs);
+    	}
+    });
+}
+exports.getUserDataForFriendAPI = getUserDataForFriendAPI;
+
 /*　こんな書き方もできるが、今ので安定しているのでそちらを使う。
 var getOneUser = function(userName,confirmError){
 	User.findOne({name:req.body.name}, function(err, obj){
@@ -118,6 +131,18 @@ var getOneUser = function(userName,confirmError){
     	}
 	});
 }*/
+
+var getRandomUserData = function (react){
+	User.find({},'name password date',{sort:{date : 1}, limit:10}, function(err, users) {
+    	if(err){
+    		console.log('@失敗　DBから履歴読み出し失敗');
+    	}else{
+    		console.log('@成功　DBから履歴読み出し成功');
+    		react(users);
+    	}
+    });
+}
+exports.getRandomUserData = getRandomUserData;
 
 //userdataの保存
 exports.setUserData = function(userName,userPass,confirmError){
@@ -149,6 +174,30 @@ exports.setUserData = function(userName,userPass,confirmError){
 		    	}
 		    	confirmError(errStr);
 			});
+		}
+	});
+}
+
+//userにfriendを追加
+exports.setFriendToUser = function(userName, friendName){
+	getUserDataForFriendAPI(friendName,function(user){
+		User.update({name:userName}, {'$push': 
+			{friend: user}
+		}, { upsert: true, multi: false },function(err){
+			if(err){
+				console.log(err);
+			}
+		});
+	});
+}
+
+//userのfriend情報をゲット 
+exports.getFriend = function(userName,react){
+	User.find({name:userName},function(err,user){
+		if(err){
+			console.log(err);
+		}else{
+			react(user.friend);
 		}
 	});
 }

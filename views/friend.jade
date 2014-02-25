@@ -1,4 +1,25 @@
 extends layout
 
 block content
-	p friend
+	script(src='../javascripts/friend.js')
+	div(align='center')
+		table#friendTable(border-width='2', border='#ccc')
+			caption friend list
+			colgroup(span="2", width='5%')
+			tr
+				th(colspan='1')
+					div.tableHead(align='center')
+						span friend list 
+				th(colspan='1')
+					div.tableHead(align='center')
+						span make friends ?
+			tr
+				td(colspan='1')
+					div#friendlist(align='center')
+				td(colspan='1')
+					div#makefriend(align='center')
+						ul
+						-for (var i = 0; i < users.length; i++)
+							- var name = users[i].name
+							li
+								p(value= name) #{name}

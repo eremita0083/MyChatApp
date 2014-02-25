@@ -3,10 +3,6 @@ body {
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
-	color: #00B7FF;
-}
-
 div#inputForm, #dataArea {
 	border-style: ridge;
 	margin: 10px;
@@ -27,10 +23,6 @@ p#socketId{
 table#friendTable{
 	width: 80%;
 	height: 80%;
-}
-
-div.tableHead{
-	margin:0 auto 0 auto;
 }
 
 div#body_friend{

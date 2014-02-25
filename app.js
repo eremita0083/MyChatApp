@@ -8,7 +8,6 @@ var socketServer = require('./routes/socketserver.js');
 var routes = require('./routes/chat');
 var auth = require('./routes/auth');
 var room = require('./routes/room');
-var friend = require('./routes/friend');
 
 var app = express();
 
@@ -47,9 +46,10 @@ app.use(function(req, res, next){
 //route
 app.get('/login', auth.login);
 app.get('/signup',auth.signup);
-app.get('/friend', friend.friend);
+app.get('/friend', room.friend);
+app.post('/makefriend',room.makefriend);
 app.get('/roomlobby',room.roomlobby);
-app.post('/searchfriend', friend.searchfriend);
+app.post('/searchfriend', room.searchfriend);
 app.post('/signupnow',auth.signupnow);
 app.post('/test',auth.test);
 app.get('/chat',  routes.chat);

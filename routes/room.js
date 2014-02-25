@@ -48,9 +48,56 @@ exports.testroom = function(req,res){
 }
 
 exports.room = function(req,res){
-	res.render('room', { title: 'my chat app', user: req.session.user, room:req.session.room });
+	if(!req.session.user){
+		res.redirect('/login');
+	}else{
+		res.render('room', { title: 'my chat app', user: req.session.user, room:req.session.room });
+	}
 }
 
+
 exports.roomlobby = function(req,res){
-	res.render('roomlobby', { title: 'my chat app', user: req.session.user });
+	if(!req.session.user){
+		res.redirect('/login');
+	}else{
+		res.render('roomlobby', { title: 'my chat app', user: req.session.user });
+	}
+}
+
+exports.friend = function(req, res, next) {
+	//TODO ここでDBからフレンドリストとランダムに五人くらいのユーザーを引っ張ってきて友達候補としてデータを渡す
+	var user = req.session.user;
+	if(!req.session.user){
+		//loginしてなかった/loginに飛ばす
+		res.redirect('/login');
+	}else{
+		//loginしていたら、frienddataを取得し、/friendに飛ぶ
+		db.getFriend(user.name, function(err,friend){
+			if(err){
+				console.log(err);
+				res.redirect('/login');
+			}else{
+				db.getRandomUserData(function(users){
+					console.log('@friend users:' + users[0].name);
+					res.render('friend', { title: 'my chat app', user: req.session.user, friend: friend, users: users });
+				});
+			}
+		});
+	}
+};
+
+exports.searchfriend = function(req,res,next){
+	var searchResult = req.body.search;
+	console.log(searchResult);
+	req.session.user.friend = searchResult; 
+	res.redirect('/friend');
+}
+
+//TODO friend追加処理
+exports.makefriend = function(req,res,next){
+	var searchResult = req.body.search;
+	console.log(searchResult);
+	//TODO これを/friendで拾うようにする。
+	req.session.user.friend = searchResult; 
+	res.redirect('/friend');
 }
