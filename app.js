@@ -8,6 +8,7 @@ var socketServer = require('./routes/socketserver.js');
 var routes = require('./routes/chat');
 var auth = require('./routes/auth');
 var room = require('./routes/room');
+var roomServer = require("./routes/chatroomserver.js")
 
 var app = express();
 
@@ -64,7 +65,7 @@ server.listen(app.get('port'), function(){
 
 //socketIo待ちうけ
 socketServer.connectionIo(server);
-
+roomServer.connectionRoomIo(server);
 // TODO　友達、ルーム。発言をユーザー情報を保持しておく。リアルタイムでログイン状態が見れる。　次
 // TODO　mongooseで要素のネストを読み取ってくれなかった。
 // TODO socketserverでdisconnectが渡されたdataを上手くパースしてくれない。
