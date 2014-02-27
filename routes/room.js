@@ -72,16 +72,23 @@ exports.friend = function(req, res, next) {
 		res.redirect('/login');
 	}else{
 		//loginしていたら、frienddataを取得し、/friendに飛ぶ
-		db.getFriend(user.name, function(err,friend){
-			if(err){
+		db.getFriend(user.name, function(dataForFriend){
+			/*if(err){
 				console.log(err);
 				res.redirect('/login');
-			}else{
+			}else{*/
+				var friends = dataForFriend.friend;
 				db.getRandomUserData(function(users){
-					console.log('@friend users:' + users[0].name);
-					res.render('friend', { title: 'my chat app', user: req.session.user, friend: friend, users: users });
+					console.log('@friend candidate of friend:' + users[0].name);
+					console.log('@friend friend:' + friends);
+					var count = 0;
+					for(var j in friends.friend){
+						count += 1;
+					}
+					console.log('@friend count:' + count);
+					res.render('friend', { title: 'my chat app', user: req.session.user, friends: friends, users: users, length: count });
 				});
-			}
+			/*}*/
 		});
 	}
 };
@@ -95,9 +102,22 @@ exports.searchfriend = function(req,res,next){
 
 //TODO friend追加処理
 exports.makefriend = function(req,res,next){
-	var searchResult = req.body.search;
+	/*var searchResult = req.body.search;
 	console.log(searchResult);
 	//TODO これを/friendで拾うようにする。
-	req.session.user.friend = searchResult; 
-	res.redirect('/friend');
+	req.session.user.friend = searchResult; */
+	var friend = req.body.friend;
+	var fLength = friend.length;
+	console.log('@makefriend numbers of added friend:' + fLength);
+	var user = req.session.user;
+	console.log('@makefriend username:' + user.name);
+	for (var i = 0; i < fLength; i++){
+		console.log('@makefriend friendname:' + friend);
+		db.setFriendToUser(user.name , friend[i], function(){
+			if(i == fLength){
+				console.log('@makefriend　data set complete');
+				res.redirect('/friend');
+			}
+		});
+	}
 }

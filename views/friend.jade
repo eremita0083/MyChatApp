@@ -1,7 +1,6 @@
 extends layout
 
 block content
-	script(src='../javascripts/friend.js')
 	div(align='center')
 		table#friendTable(border-width='2', border='#ccc')
 			caption friend list
@@ -16,10 +15,20 @@ block content
 			tr
 				td(colspan='1')
 					div#friendlist(align='center')
-				td(colspan='1')
-					div#makefriend(align='center')
 						ul
-						-for (var i = 0; i < users.length; i++)
-							- var name = users[i].name
+						- var friendsList = friends
+						-for (var i = 0; i < length ; i++)
+							- var friendName = friendsList[i].name
 							li
-								p(value= name) #{name}
+								| #{friendName}
+				td(colspan='1') 
+					div#makefriend(align='center')
+						form(method= 'post', action= '/makefriend')
+							ul(style="list-style:none;")
+							-for (var i = 0; i < users.length; i++)
+								- var name = users[i].name
+								if user.name != name
+									li
+										| #{name}
+										input(type='checkbox', for= name,　value= name, name= 'friend[' + i + ']')
+							input(type='submit')

@@ -133,7 +133,8 @@ var getOneUser = function(userName,confirmError){
 }*/
 
 var getRandomUserData = function (react){
-	User.find({},'name password date',{sort:{date : 1}, limit:10}, function(err, users) {
+	// TODO ランダムで表示できるようにする
+	User.find({},'name password date', {limit:10}, function(err, users) {
     	if(err){
     		console.log('@失敗　DBから履歴読み出し失敗');
     	}else{
@@ -179,13 +180,15 @@ exports.setUserData = function(userName,userPass,confirmError){
 }
 
 //userにfriendを追加
-exports.setFriendToUser = function(userName, friendName){
+exports.setFriendToUser = function(userName, friendName, react){
 	getUserDataForFriendAPI(friendName,function(user){
 		User.update({name:userName}, {'$push': 
 			{friend: user}
 		}, { upsert: true, multi: false },function(err){
 			if(err){
 				console.log(err);
+			}else{
+				react();
 			}
 		});
 	});
@@ -193,12 +196,10 @@ exports.setFriendToUser = function(userName, friendName){
 
 //userのfriend情報をゲット 
 exports.getFriend = function(userName,react){
-	User.find({name:userName},function(err,user){
-		if(err){
-			console.log(err);
-		}else{
-			react(user.friend);
-		}
+	User.find({name:userName},'name password friend date',function(err,friend){
+		console.log('@getfriend username:' + friend);
+		console.log('@getfriend err:' + err);
+		react(friend);
 	});
 }
 
