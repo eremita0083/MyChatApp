@@ -1,6 +1,7 @@
 exports.connectionIo = function(server){
     var chatModel = require('../db/mydb.js');
     var io = require('socket.io').listen(server);
+
     io.set('blacklist',[]);
     var sanitizer = require('validator');  //xss対策 .checkで入力値検証。.sanitizeで無害化。
     console.log('@validator'+sanitizer);
@@ -72,6 +73,22 @@ exports.connectionIo = function(server){
             }else{
                 io.sockets.socket(socket.id).emit('uploaderror','画像サイズまたは形式が適切ではありません。');
             }
+        });
+
+        // message受信
+        socket.on('room_message', function (data) {
+            console.log('@room_message');
+            io.sockets.in('myroom').emit('room_message', data);
+        });
+        
+        // 入室
+        socket.on('room_join', function (data){
+            socket.set('room', 'myroom');
+            socket.set('name', data.user);
+            console.log('@room_message room s detail:' + io.sockets.manager.rooms);
+            console.log('@room_message');
+            socket.join('myroom');
+            io.sockets.in('myroom').emit('room_join', {user: data.user});
         });
     });
 }

@@ -1,3 +1,6 @@
+//connectionは削減できそう 
+//mongoose.connect('mongodb://localhost:27017');
+
 var mongoose = require('mongoose');
 
 //chatのスキーマを作成
@@ -15,7 +18,7 @@ var Chat = mongoose.model('chat');
 var userSchema = mongoose.Schema({
 	name:{ type: String, required: true },
 	password:{ type: String, required: true },
-	friend:[User],
+	friend:[userSchema],
 	date:{ type: Date, default: new Date().getTime() }
 });
 mongoose.model('user',userSchema);
@@ -196,10 +199,10 @@ exports.setFriendToUser = function(userName, friendName, react){
 
 //userのfriend情報をゲット 
 exports.getFriend = function(userName,react){
-	User.find({name:userName},'name password friend date',function(err,friend){
-		console.log('@getfriend username:' + friend);
+	User.findOne({name:userName},'name password friend date',function(err,user){
+		console.log('@getfriend username:' + user);
 		console.log('@getfriend err:' + err);
-		react(friend);
+		react(user);
 	});
 }
 

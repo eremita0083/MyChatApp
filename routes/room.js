@@ -77,16 +77,18 @@ exports.friend = function(req, res, next) {
 				console.log(err);
 				res.redirect('/login');
 			}else{*/
-				var friends = dataForFriend.friend;
 				db.getRandomUserData(function(users){
 					console.log('@friend candidate of friend:' + users[0].name);
-					console.log('@friend friend:' + friends);
+					console.log('@friend friend:' + dataForFriend.friend);
 					var count = 0;
-					for(var j in friends.friend){
-						count += 1;
+					for(var j in dataForFriend.friend){
+						if(typeof j != 'string'){
+							count += 1;
+						}
+						console.log('@friend friendsの中身'+ typeof j);
 					}
 					console.log('@friend count:' + count);
-					res.render('friend', { title: 'my chat app', user: req.session.user, friends: friends, users: users, length: count });
+					res.render('friend', { title: 'my chat app', user: req.session.user, friends: dataForFriend.friend, users: users, length: count });
 				});
 			/*}*/
 		});
@@ -113,7 +115,9 @@ exports.makefriend = function(req,res,next){
 	console.log('@makefriend username:' + user.name);
 	for (var i = 0; i < fLength; i++){
 		console.log('@makefriend friendname:' + friend);
-		db.setFriendToUser(user.name , friend[i], function(){
+		var no = i +"";
+		console.log('@makefriend no' + no)
+		db.setFriendToUser(user.name , friend.no, function(){
 			if(i == fLength){
 				console.log('@makefriend　data set complete');
 				res.redirect('/friend');
@@ -121,3 +125,5 @@ exports.makefriend = function(req,res,next){
 		});
 	}
 }
+
+//TODO friends機能修正amとroom機能実装pm

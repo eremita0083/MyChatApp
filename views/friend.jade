@@ -16,9 +16,10 @@ block content
 				td(colspan='1')
 					div#friendlist(align='center')
 						ul
-						- var friendsList = friends
 						-for (var i = 0; i < length ; i++)
-							- var friendName = friendsList[i].name
+						- var no = i +''
+							if friends.no
+							- var friendName = friends[i]
 							li
 								| #{friendName}
 				td(colspan='1') 

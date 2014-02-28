@@ -1,4 +1,4 @@
-var socket = io.connect('http://localhost:3000/myroom');
+var socket = io.connect('http://localhost:3000/');
 var NS = {};
 
 $(function(){
@@ -6,13 +6,13 @@ $(function(){
     //UserIdを画面に表示し、参加したことを知らせる
     console.log('@client ' + NS.userName);
     // room入室時にemit。 
-    socket.emit('room_join', {user: NS.userName});
+    socket.emit('room_join', {user: NS.userName, room:req.session.room});
 });
 
 //message nameのみ受け取る
 socket.on('room_message', function (data) {
 	console.log('room_message received!');
-    var mes = data.message;
+    var message = data.message;
     var name = data.name;
     var child = document.createElement('p');
     var dataArea = document.getElementById('roomDataArea');
@@ -24,14 +24,15 @@ socket.on('room_message', function (data) {
 function sendTextToRoomServer(){
     var text = document.getElementById('roomtext').value;
     var now = new Date();
+    var name = NS.userName;
     console.log('@sendTextToRoomServer');
-    socket.emit('room_message',{ message:text, date:now.getTime()});
+    socket.emit('room_message',{ message:text, date:now.getTime(), name: NS.userName});
 }
 
 // nameのみ受け取る。
-socket.on('room_Join', function　(data){
-	var mes = data.message;
-    var name = data.name;
+socket.on('room_join', function　(data){
+    console.log('room_join received!');
+    var name = data.user;
     var child = document.createElement('p');
     var dataArea = document.getElementById('roomDataArea');
     child.innerHTML = name + 'さんが入室しました';
