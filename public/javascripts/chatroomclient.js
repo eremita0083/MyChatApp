@@ -3,10 +3,11 @@ var NS = {};
 
 $(function(){
     NS.userName = $('#roomUserName').text();
+    NS.roomName = $('#roomName').text();
     //UserIdを画面に表示し、参加したことを知らせる
     console.log('@client ' + NS.userName);
     // room入室時にemit。 
-    socket.emit('room_join', {user: NS.userName, room:req.session.room});
+    socket.emit('room_join', {user: NS.userName, room:NS.roomName});
 });
 
 //message nameのみ受け取る
@@ -26,7 +27,7 @@ function sendTextToRoomServer(){
     var now = new Date();
     var name = NS.userName;
     console.log('@sendTextToRoomServer');
-    socket.emit('room_message',{ message:text, date:now.getTime(), name: NS.userName});
+    socket.emit('room_message',{ message:text, date:now.getTime(), name: NS.userName, room:NS.roomName});
 }
 
 // nameのみ受け取る。

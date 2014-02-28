@@ -1,15 +1,16 @@
 extends layout
 
 block content
-	p please sign up
-	br
-	form#signupForm(method='post', action='/signupnow')
-		fieldset
-			legend signup
-			p
-				label(for='user[name]') ユーザ名:
-				input(name='user[name]')
-			p
-				label(for='user[pwd]') パスワード:
-				input(type='password', name='user[pwd]') 
-			input(type='submit')
+	div(align='center')
+		p please sign up
+		br
+		form#signupForm(method='post', action='/signupnow')
+			fieldset
+				legend signup
+				p
+					label(for='user[name]') ユーザ名:
+					input(name='user[name]')
+				p
+					label(for='user[pwd]') パスワード:
+					input(type='password', name='user[pwd]') 
+				input(type='submit')

@@ -2,6 +2,9 @@ extends layout
 
 block content
 	div(align='center')
+		if user.friend
+			span 「#{user.friend}」さんの検索結果です
+			- delete user.friend
 		table#friendTable(border-width='2', border='#ccc')
 			caption friend list
 			colgroup(span="2", width='5%')
@@ -17,8 +20,6 @@ block content
 					div#friendlist(align='center')
 						ul
 						-for (var i = 0; i < length ; i++)
-						- var no = i +''
-							if friends.no
 							- var friendName = friends[i]
 							li
 								| #{friendName}
@@ -31,5 +32,6 @@ block content
 								if user.name != name
 									li
 										| #{name}
-										input(type='checkbox', for= name,　value= name, name= 'friend[' + i + ']')
+										input(type='checkbox', for= name,　value= name, name= 'friend[' + i + ']' checked)
+							br
 							input(type='submit')

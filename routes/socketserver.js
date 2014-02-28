@@ -78,17 +78,16 @@ exports.connectionIo = function(server){
         // message受信
         socket.on('room_message', function (data) {
             console.log('@room_message');
-            io.sockets.in('myroom').emit('room_message', data);
+            io.sockets.in(data.room).emit('room_message', data);
         });
         
         // 入室
         socket.on('room_join', function (data){
-            socket.set('room', 'myroom');
+            socket.set('room', data.room);
             socket.set('name', data.user);
             console.log('@room_message room s detail:' + io.sockets.manager.rooms);
-            console.log('@room_message');
-            socket.join('myroom');
-            io.sockets.in('myroom').emit('room_join', {user: data.user});
+            socket.join(data.room);
+            io.sockets.in(data.room).emit('room_join', {user: data.user});
         });
     });
 }

@@ -1,4 +1,4 @@
-//connectionは削減できそう 
+//connectは削減できそう。 
 //mongoose.connect('mongodb://localhost:27017');
 
 var mongoose = require('mongoose');
@@ -277,7 +277,6 @@ exports.getTheRoomDataForCreate = function(roomName, react){
 			console.log(err);
 		}else{
 			react(doc);
-			// return じゃ情報取得できない
 		}
 	});
 }
@@ -287,7 +286,6 @@ exports.getTheRoomDataForEnter = function(roomName, roomPass, react){
 			console.log(err);
 		}else{
 			react(doc);
-			// return doc;
 		}
 	});
 }

@@ -2,10 +2,6 @@ extends layout
 
 block content
 	div#body_friend(align='center')
-		if user.friend
-			span 「#{user.friend}」さんの検索結果です
-		else
-			span welcome to lobby
 		br
 		br
 		table#friendTable(border-width='2', border='#ccc')
@@ -26,7 +22,7 @@ block content
 									label(for="room[select]") create your room
 									br
 									input(type="radio", name="room[select]", value="enter")
-									label(for="room[select]") enter the room
+									label(for="room[select]") enter a room
 								p
 									label(for='room[name]') room name:
 									input(name='room[name]')

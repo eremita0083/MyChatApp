@@ -78,17 +78,12 @@ exports.friend = function(req, res, next) {
 				res.redirect('/login');
 			}else{*/
 				db.getRandomUserData(function(users){
+					var friends = dataForFriend.friend
 					console.log('@friend candidate of friend:' + users[0].name);
-					console.log('@friend friend:' + dataForFriend.friend);
-					var count = 0;
-					for(var j in dataForFriend.friend){
-						if(typeof j != 'string'){
-							count += 1;
-						}
-						console.log('@friend friendsの中身'+ typeof j);
-					}
-					console.log('@friend count:' + count);
-					res.render('friend', { title: 'my chat app', user: req.session.user, friends: dataForFriend.friend, users: users, length: count });
+					console.log('@friend friend:');
+					console.log('@friend friend friends: ' + friends);
+					var count = 1;
+					res.render('friend', { title: 'my chat app', user: req.session.user, friends: friends, users: users, length: count });
 				});
 			/*}*/
 		});
@@ -115,9 +110,7 @@ exports.makefriend = function(req,res,next){
 	console.log('@makefriend username:' + user.name);
 	for (var i = 0; i < fLength; i++){
 		console.log('@makefriend friendname:' + friend);
-		var no = i +"";
-		console.log('@makefriend no' + no)
-		db.setFriendToUser(user.name , friend.no, function(){
+		db.setFriendToUser(user.name , friend, function(){
 			if(i == fLength){
 				console.log('@makefriend　data set complete');
 				res.redirect('/friend');
